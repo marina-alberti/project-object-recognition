@@ -13,9 +13,11 @@ void ApiFeatureExtractionSingleObject::extractFeatures(Object & inputObject , pc
 
 	int objectID =  inputObject.getActualObjectID();
 	int instanceID = inputObject.getInstanceID();
+	string instanceName = inputObject.getInstanceName();
 
 	out.setObjectID(objectID);
 	out.setInstanceID(instanceID);
+	out.setInstanceName(instanceName);
 
 	computePose(inputObject, refCentroid);
 

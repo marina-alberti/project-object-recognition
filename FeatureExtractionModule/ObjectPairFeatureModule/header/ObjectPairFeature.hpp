@@ -30,6 +30,9 @@ private:
 	int instanceID1;
 	int instanceID2;
 
+	string instanceName1;
+	string instanceName2;
+
 	float EuclideanDistance;
 	float EuclideanDistance2d;
 	float orientation2d;
@@ -45,6 +48,9 @@ public:
 	void setInstanceID1(int);
 	void setInstanceID2(int);
 
+	void setInstanceName1(string);
+	void setInstanceName2(string);
+
 	void setEuclideanDistance(float);
 	void setEuclideanDistance2d(float);
 	void setOrientation2d(float);
@@ -56,6 +62,8 @@ public:
 	int getObjectID2() { return objectID2; }
 	int getInstanceID1() { return instanceID1; }
 	int getInstanceID2() { return instanceID2; }
+	string getInstanceName1() { return instanceName1; }
+	string getInstanceName2() { return instanceName2; }
 
 	float getEuclideanDistance() { return EuclideanDistance; }
 	float getEuclideanDistance2d() { return EuclideanDistance2d; }

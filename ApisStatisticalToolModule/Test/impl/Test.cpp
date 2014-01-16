@@ -344,7 +344,7 @@ path Test::voting(ArrangeFeatureTestScene & testfeatures, int normalization, vec
 
 						// ***************************************************************************************
 
-						double totalscore =  refprobPosterior * targetprobPosterior * pairprobPosterior; // TODO change
+						double totalscore =  refprobPosterior * targetprobPosterior * pairprobPosterior;
 
 						// vote for p == i and q == j
 
@@ -359,11 +359,19 @@ path Test::voting(ArrangeFeatureTestScene & testfeatures, int normalization, vec
 						votingTable.at(p).at(i) += totalscore;
 						votingTable.at(q).at(j) += totalscore;
 
+						if (TESTFLAG) {
+
+							cout << "target prob = " << targetprob << endl;
+							cout << " ref prob = " << refprob << endl;
+							cout << "pair prob = " << pairprob << endl;
+						}
+
 					}
 				}
 			}
 		}
 	}
+
 
 	// print the voting table
 	// rows are the different categories
@@ -405,6 +413,330 @@ path Test::voting(ArrangeFeatureTestScene & testfeatures, int normalization, vec
 
 	return resultsPath;
 }
+
+
+/*
+ * Converts the ROS service request consisting of a vector of ROS msgs : ObjectClassification
+ * into the internal data structure that uses map structures.
+ */
+map<string, mapCategoryConfidence> Test::convertObjectClassificationMsgToIDS(vector<strands_qsr_msgs::ObjectClassification> inVector) {
+
+	map<string, mapCategoryConfidence> mapObjectClassification;
+
+	// for each test object in the scene
+	for (int i = 0; i < inVector.size(); i++) {
+
+		strands_qsr_msgs::ObjectClassification currentObjectClassification = inVector.at(i);
+
+		string objectIdString = currentObjectClassification.object_id;
+		vector<string> categoryListString = currentObjectClassification.type;
+		vector<float> confidenceList = currentObjectClassification.confidence;
+
+		// create the map<int, double> mapCategoryConfidence , for each element of the category list
+		vector<int> categoryListInt = convertStringToIntCategoryLabelVector(categoryListString);
+
+		mapCategoryConfidence currentCategoryConfidenceMap;
+
+		for (int j = 0; j < categoryListInt.size(); j++) {
+
+			currentCategoryConfidenceMap[categoryListInt.at(j)] = confidenceList.at(j);
+
+		}
+		mapObjectClassification[objectIdString] = currentCategoryConfidenceMap;
+
+	}
+	return mapObjectClassification;
+
+}
+
+
+/*
+ *
+ * vector<strands_qsr_msgs::ObjectClassification>
+ *
+ * Each strands_qsr_msgs::ObjectClassification
+ * 	string object_id
+ * 	vector<string> type
+ * 	vector<float/double> confidence
+ *
+ */
+vector<strands_qsr_msgs::ObjectClassification> Test::voting(ArrangeFeatureTestScene & testfeatures, int normalization, vector<vector<double> > & votingTable, vector<int> categoryList, vector<string> categoryListString, map<string, mapCategoryConfidence> objectClassificationMap) {
+
+	// extracting the matrix of OPF and the vector of SOF - note that they contain object instance identifiers
+	vector<vector<ObjectPairFeature> > matrixOPF = testfeatures.getMatrixOPF();
+	vector<SingleObjectFeature> listSOF = testfeatures.getListSOF();
+
+	/*
+	 *  The Voting table:
+	 *  the ROWS are the different test objects
+	 *  the COLUMNS are the different object categories
+	*/
+	// Initialize the voting table <nObjects X nCategories> with zeros
+	for (int i = 0; i < listSOF.size(); i++) {
+		vector <double> temp;
+		for (int j = 0; j < meansSingleObject.size(); j++) {
+			temp.push_back(0);
+		}
+		votingTable.push_back(temp);
+	}
+
+	// for each pair of test objects - which must be different test objects
+	// for each possible reference object
+	for (int p = 0; p < listSOF.size(); p++) {
+		// for each possible target object given the chosen reference object in position "p"
+		for (int q = 0; q < listSOF.size(); q++) {
+
+			if (p != q) {
+
+				// get the features of the two selected test objects
+				SingleObjectFeature refSOF = listSOF.at(p);
+				SingleObjectFeature targetSOF = listSOF.at(q);
+				ObjectPairFeature opf = matrixOPF.at(p).at(q);
+
+				// get the string identifiers for the two test objects in the considered object pair
+				string refInstanceName = refSOF.getInstanceName();
+				string targetInstanceName = targetSOF.getInstanceName();
+
+				// note: the order of the test objects in the request should be same
+				// i can just check if the string id is same
+
+				/*
+				// // todo: then create a data structure that associates the category to the score
+				// for example a map so that i can input the category and get in output the score which is
+				// what i need to do
+				 * map<int, float> DO THIS OUT OF THIS FUNCTION
+				 *
+				 * get the data of the object which has same string identifier
+				 * get the list of possible categories and their confidence
+				 *
+				 * Input data should be converted to this format::
+				 * map of string test object identifier and other map data structure map <string, typedefMap>
+				 * this second map is a map of the category label and the confidence map <int, float>
+				 *
+				 * typedefMap = totalMap[string instance id]
+				 * */
+
+
+				// extract the vectors of features
+				vector<float> reffeatures = refSOF.getAllFeatures();
+				vector<float> targetfeatures = targetSOF.getAllFeatures();
+				vector<float> pairfeatures = opf.getAllFeatures();
+
+				// test against all possible object category models
+
+				// // for each possible combination of object category labels for the considered test object
+				// // only the object categories in the category list are considered
+				for (int i = 0; i < categoryList.size(); i++) {
+					for (int j = 0; j < categoryList.size(); j++) {
+
+						// test the reference against i and the target against j
+
+						// ***************************************************************
+						// THE REFERENCE
+
+						cv::Mat refmeans = meansSingleObject.at(categoryList.at(i)); 				//  dims x nclusters
+						cv::Mat refweights = weightsSingleObject.at(categoryList.at(i));  			//  nclusters x 1
+						vector<cv::Mat> refcovs = covsSingleObject.at(categoryList.at(i));      		//  nclusters x dims x dims
+
+				    	vector<float> refnormalizedFeatMat;
+						if (normalization == 1) {
+
+							vector<double> meansVector = meanNormalizationSingleObject.at(categoryList.at(i));
+							vector<double> stdVector = stdNormalizationSingleObject.at(categoryList.at(i));
+							refnormalizedFeatMat = StatisticalTool::doNormalizationFeatureVector(reffeatures, meansVector, stdVector);
+						}
+						else if (normalization == 2) {
+
+							vector<double> maxVector = maxFeatSingleObject.at(categoryList.at(i));
+							vector<double> minVector = minFeatSingleObject.at(categoryList.at(i));
+							refnormalizedFeatMat = StatisticalTool::doNormalizationMinMaxFeatureVector(reffeatures, maxVector, minVector);
+						}
+						else if (normalization == 0) {
+							refnormalizedFeatMat = reffeatures;
+						}
+						double refprob = StatisticalTool::computeGMMProbability(reffeatures, refmeans, refcovs, refweights );
+
+						// compute a-priori probability of object classes in terms of frequency of appearance in the training database
+						double refObjectCategoryFreq = frequencySingleObject[categoryList.at(i)];
+
+
+						// creates the factor for the apriori confidence in input with the ROS service request
+						mapCategoryConfidence refCategoryConfidenceMap = objectClassificationMap[refInstanceName];
+						double refConfidence = (double)refCategoryConfidenceMap[categoryList.at(i)];
+
+
+						double refprobPosterior = refprob * refObjectCategoryFreq;
+
+						// ***************************************************************
+						// THE TARGET
+
+						cv::Mat targetmeans = meansSingleObject.at(categoryList.at(j)); 					//  dims x nclusters
+						cv::Mat targetweights = weightsSingleObject.at(categoryList.at(j));  			//  nclusters x 1
+						vector<cv::Mat> targetcovs = covsSingleObject.at(categoryList.at(j));      		//  nclusters x dims x dims
+
+						vector<float> targetnormalizedFeatMat;
+						if (normalization == 1) {
+
+							vector<double> meansVector = meanNormalizationSingleObject.at(categoryList.at(j));
+							vector<double> stdVector = stdNormalizationSingleObject.at(categoryList.at(j));
+							targetnormalizedFeatMat = StatisticalTool::doNormalizationFeatureVector(targetfeatures, meansVector, stdVector);
+						}
+						else if (normalization == 2) {
+
+							vector<double> maxVector = maxFeatSingleObject.at(categoryList.at(j));
+							vector<double> minVector = minFeatSingleObject.at(categoryList.at(j));
+							targetnormalizedFeatMat = StatisticalTool::doNormalizationMinMaxFeatureVector(targetfeatures, maxVector, minVector);
+						}
+						else if (normalization == 0) {
+							targetnormalizedFeatMat = targetfeatures;
+						}
+						double targetprob = StatisticalTool::computeGMMProbability(targetfeatures, targetmeans, targetcovs, targetweights );
+
+						double targetObjectCategoryFreq = frequencySingleObject[categoryList.at(j)];
+
+
+						// creates the factor for the apriori confidence in input with the ROS service request
+						mapCategoryConfidence targetCategoryConfidenceMap = objectClassificationMap[targetInstanceName];
+						double targetConfidence = (double)targetCategoryConfidenceMap[categoryList.at(j)];
+
+
+						double  targetprobPosterior =  targetprob *  targetObjectCategoryFreq;
+
+
+						// ***************************************************************
+						// THE PAIR RELATION
+
+						cv::Mat pairmeans = meansObjectPair.at(categoryList.at(i)).at(categoryList.at(j)); 					//  dims x nclusters
+						cv::Mat pairweights = weightsObjectPair.at(categoryList.at(i)).at(categoryList.at(j));  				//  nclusters x 1
+						vector<cv::Mat> paircovs = covsObjectPair.at(categoryList.at(i)).at(categoryList.at(j));      		//  nclusters x dims x dims
+
+						if (DEBUG) {
+							cout << "In setting voting table 0  " << i << "  " << j << endl;
+						}
+
+						vector<float> pairnormalizedFeatMat;
+						if (normalization == 1) {
+
+							vector<double> meansVector = meanNormalizationObjectPair.at(categoryList.at(i)).at(categoryList.at(j));
+							vector<double> stdVector = stdNormalizationObjectPair.at(categoryList.at(i)).at(categoryList.at(j));
+							pairnormalizedFeatMat = StatisticalTool::doNormalizationFeatureVector(pairfeatures, meansVector, stdVector);
+						}
+						else if (normalization == 2) {
+
+							vector<double> maxVector = maxFeatObjectPair.at(categoryList.at(i)).at(categoryList.at(j));
+							vector<double> minVector = minFeatObjectPair.at(categoryList.at(i)).at(categoryList.at(j));
+							pairnormalizedFeatMat = StatisticalTool::doNormalizationMinMaxFeatureVector(pairfeatures, maxVector, minVector);
+						}
+						else if (normalization == 0) {
+							pairnormalizedFeatMat = pairfeatures;
+						}
+						if (DEBUG) {
+							cout << "In setting voting table b  " << i << "  " << j << endl;
+							cout << "means" << endl << pairmeans << endl;
+							cout << "weights" << endl << pairweights << endl;
+							//cout << "covs" << endl << paircovs.at(0) << endl;
+						}
+
+						double pairprob = StatisticalTool::computeGMMProbability(pairfeatures, pairmeans, paircovs, pairweights );
+
+
+						double  pairObjectCategoryFreq = frequencyObjectPair.at(categoryList.at(i)).at(categoryList.at(j));
+
+						double  pairprobPosterior =  pairprob  *  pairObjectCategoryFreq;
+
+						// ***************************************************************************************
+
+						double totalscore =  refprobPosterior * targetprobPosterior * pairprobPosterior;
+
+						// vote for p == i and q == j
+
+						/*
+						votingTable.at(i).at(p) += totalscore;
+						votingTable.at(j).at(q) += totalscore;
+						*/
+
+
+						// // // The current combination adds up to the total score in the voting table'
+						// // // of test object p being class i and test object q being class j.
+						votingTable.at(p).at(categoryList.at(i)) += totalscore;
+						votingTable.at(q).at(categoryList.at(j)) += totalscore;
+
+					}
+				}
+			}
+		}
+	}
+
+	// print the voting table
+	// rows are the different categories
+	// columns are the different test objects
+
+	cout << "start printing " << endl << endl;
+	for (int c = 0; c < meansSingleObject.size(); c++) {
+		for (int cc = 0; cc < listSOF.size(); cc++) {
+			cout << votingTable.at(cc).at(c) << "         " ;
+		}
+		cout << endl;
+	}
+
+	for (int cc = 0; cc < listSOF.size(); cc++) {
+		vector<double> vectorin = votingTable.at(cc);
+		cout << cc << " Actual class is:  " << listSOF.at(cc).getObjectID() << endl;
+		cout << " Predicted class is:  "  << computeMaximum(vectorin) << endl;
+	}
+
+	cout << "end printing" << endl;
+
+
+	path resultsPath;
+
+	for (int cc = 0; cc < listSOF.size(); cc++) {
+
+		vector<double> vectorin = votingTable.at(cc);
+
+		int objectInstanceId = listSOF.at(cc).getInstanceID();
+		int categoryLabel = computeMaximum(vectorin);
+		resultsPath[objectInstanceId] = categoryLabel;
+	}
+
+	printPath(resultsPath);
+
+
+	// conversion output into the format of the response of the ROS service
+
+	vector<strands_qsr_msgs::ObjectClassification> objectClassificationMsgsList;
+
+    // for each row of the voting table = for each test object
+	for (int i = 0; i < votingTable.size(); i++) {
+
+		string objectInstanceName = listSOF.at(i).getInstanceName();
+
+		strands_qsr_msgs::ObjectClassification currentObjectClassificationMsg;
+		currentObjectClassificationMsg.object_id = objectInstanceName;
+
+		vector<string> type;
+		vector<double> scores;
+
+		// for each category in the input category list of the ROS service request
+
+		for (int j = 0; j < categoryList.size(); j++) {
+
+			int currentCategory = categoryList.at(j);
+			string currentCategoryString = categoryListString.at(j);
+			double score = votingTable.at(i).at(currentCategory);
+
+			currentObjectClassificationMsg.type.push_back(currentCategoryString);
+			currentObjectClassificationMsg.confidence.push_back((float)score);
+		}
+
+		objectClassificationMsgsList.push_back(currentObjectClassificationMsg);
+	}
+
+	return objectClassificationMsgsList;
+}
+
+
+
 
 // TODO check this code!!!
 vector<vector<pairScore> > Test::prepareVotingTableOptimizationSOFbasedScores(ArrangeFeatureTestScene & feat, int normalization, vector<int> categoryList) {

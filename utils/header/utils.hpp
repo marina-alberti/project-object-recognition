@@ -36,5 +36,7 @@ int computeEqualPosition(vector<int> in, int test);
 double computeMaximumValue(vector<double> in);
 int computeMaximumValue(vector<int> in);
 
+int convertStringToIntCategoryLabel(string stringLabel);
+vector<int> convertStringToIntCategoryLabelVector(vector<string> stringLabels);
 
 #endif /* HEADER_HPP_ */

@@ -169,8 +169,63 @@ vector<string> storeFileNames(string dirname) {
   return filesList;
 }
 
+/*
+ * Based on the used list of training objects
+ * for real world new dataset (simulation dataset)
+ * A single string value is converted into a single int value
+ */
+int convertStringToIntCategoryLabel(string stringLabel) {
+
+	int intLabel;
+
+	if (stringLabel == "Mouse" ) {
+		intLabel = 0;
+	}
+	else if (stringLabel == "Keyboard") {
+		intLabel = 1;
+	}
+	else if (stringLabel == "Monitor") {
+		intLabel = 2;
+	}
+	else if (stringLabel == "Papers") {
+		intLabel = 3;
+	}
+	else if (stringLabel == "Book") {
+		intLabel = 4;
+	}
+	else if (stringLabel == "NoteBook") {
+		intLabel = 5;
+	}
+	else if (stringLabel == "Mobile") {
+		intLabel = 6;
+	}
+	else if (stringLabel == "Mug") {
+		intLabel = 7;
+	}
+	else if (stringLabel == "Glass") {
+		intLabel = 8;
+	}
+	else if (stringLabel == "Flask") {
+		intLabel = 9;
+	}
+	else if (stringLabel == "Book") {
+		intLabel = 10;
+	}
+	else if (stringLabel == "Jug") {
+		intLabel = 11;
+	}
+}
+
+vector<int> convertStringToIntCategoryLabelVector(vector<string> stringLabels) {
+
+	for (int i = 0; i < stringLabels.size(); i++) {
+
+		int currentIntLabel = convertStringToIntCategoryLabel(stringLabels.at(i));
+
+	}
 
 
+}
 
 
 

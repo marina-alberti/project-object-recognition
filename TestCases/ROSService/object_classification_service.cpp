@@ -1,7 +1,7 @@
 /*
- * test5.cpp
+ * object_classification_service.cpp
  *
- *  Created on: Dec 13, 2013
+ *  Created on: Jan 10, 2014
  *      Author: marina
  */
 
@@ -33,39 +33,166 @@
 #include "ConfusionMatrix.hpp"
 #include "ApiConvertionResultsTestConfusionMatrix.hpp"
 #include "Evaluation.hpp"
+#include "ApiConvertServiceFormat.hpp"
 
 #include "ros/ros.h"
 #include "strands_qsr_msgs/GetGroupClassification.h"
 #include "strands_qsr_msgs/BBox.h"
 #include "strands_qsr_msgs/ObjectClassification.h"
+#include "geometry_msgs/Point.h"
+#include "geometry_msgs/Quaternion.h"
+#include "geometry_msgs/Pose.h"
+
 
 
 #define DEBUG 1
 
-/*
-http://stackoverflow.com/questions/3722704/c-read-numbers-from-file-and-store-in-vectors
-*/
-
 using namespace std;
 
-int main() {
+bool handle_group_estimate(strands_qsr_msgs::GetGroupClassification::Request  & req,
+         strands_qsr_msgs::GetGroupClassification::Response & res) {
+
+	SceneInformation testScene;
+
+	// extract the fields from the ROS service request and stores them into c++ data structures
+	vector<string> objectInstanceNameList = req.object_id;
+	vector<strands_qsr_msgs::BBox> bboxListInput = req.bbox;
+	vector<geometry_msgs::Pose> poseListInput = req.pose;
+
+	// convert the Pose field of the request
+	vector<pcl::PointXYZ> poseList;
+	for(int i = 0; i < poseListInput.size(); i++) {
+		pcl::PointXYZ point;
+		point.x = poseListInput.at(i).position.x;
+		point.y = poseListInput.at(i).position.y;
+		point.z = poseListInput.at(i).position.z;
+		poseList.push_back(point);
+	}
+
+	// convert the bbox field of the request
+	vector<vector<pcl::PointXYZ> > bboxList;
+	for (int i = 0; i < bboxList.size(); i++) {
+		strands_qsr_msgs::BBox currentBbox = bboxListInput.at(i);
+
+		vector<pcl::PointXYZ> currentBboxConverted;
+		for (int j = 0; j < currentBbox.point.size(); j++) {
+			pcl::PointXYZ point;
+			point.x = currentBbox.point.at(j).x;
+			point.y = currentBbox.point.at(j).y;
+			point.z = currentBbox.point.at(j).z;
+
+			currentBboxConverted.push_back(point);
+		}
+		bboxList.push_back(currentBboxConverted);
+	}
+
+	vector<string> categoryListString = req.type;
+	vector<strands_qsr_msgs::ObjectClassification> classificationListInupt = req.group_classification;
+	map<string, mapCategoryConfidence> msgMap = Test::convertObjectClassificationMsgToIDS(classificationListInupt);
+
+
+	vector<int> categoryListInt = convertStringToIntCategoryLabelVector(categoryListString);
+
+	ApiConvertServiceFormat::parseScene(objectInstanceNameList, bboxList, poseList, testScene);
+
+	// // feature extraction
+
+	SceneSingleObjectFeature sceneSof;
+	SceneObjectPairFeature sceneOpf;
+	ApiFeatureExtractionSceneSingleObject::extract(testScene, sceneSof);
+	ApiFeatureExtractionSceneObjectPair::extract(testScene, sceneOpf);
+
+	// // Arrange features of test scene
+
+	ArrangeFeatureTestScene arrangeFeaturesTest;
+	arrangeFeaturesTest.arrangeTestFeatures(sceneSof, sceneOpf);
+
+	// // testing
+
+	Test testingScene;
+
+	string storingFolder = "params";
+	ModelTrainedIO::loadTrainedGMMsFile(storingFolder, testingScene);
+	ModelTrainedIO::loadfrequencies(storingFolder, testingScene);
+
+	path resultsPath;
+	int optionTestFunction = 1;
+	int normalizationOption = 0;
+
+	if (optionTestFunction == 0) {
+
+		resultsPath = testingScene.predictObjectClassesOnlySOF(arrangeFeaturesTest, normalizationOption);
+	}
+
+	if (optionTestFunction == 1) {
+
+		// prepare the input for the voting strategy
+		vector<vector<double> > votingTable;
+
+		// resultsPath = testingScene.voting(arrangeFeaturesTest, normalizationOption, votingTable);
+
+		vector<strands_qsr_msgs::ObjectClassification> results = testingScene.voting(arrangeFeaturesTest, normalizationOption, votingTable, categoryListInt, categoryListString, msgMap);
+
+	}
+
+
+	 // Compute probabilities for all modeled object categories + classify objects.
+	  //vector<vector<double> > weights = unknownScene.predictObjectClasses();
 
 
 	/*
-	vector<int> objectids ; //= {1, 2, 3, 4};
-	objectids.push_back(1);
-	objectids.push_back(2);
-	objectids.push_back(3);
+	  vector<strands_qsr_msgs::GroupEstimate> estimate;
 
-	vector<int> categories ; //= {30, 40};
-	categories.push_back(1);
-	categories.push_back(2);
+	  // for each object in the test scene
+	  for ( int i = 0; i < object_id.size(); i++ ) {
 
-	ApiGraph graphs(objectids, categories);
+	    strands_qsr_msgs::GroupEstimate currentObjectEstimate;
+	    currentObjectEstimate.object_id = object_id.at(i);
 
-	graphs.findAllPaths();
-	graphs.printAllPaths();
-	*/
+	    ROS_INFO("Creating response for object_id: %s ", currentObjectEstimate.object_id.c_str());
+
+	    // for each of the modeled object cateogories the test object is tested against
+	    for ( int j = 0; j < type.size(); j++ ) {
+	      double currentWeight = weights[i][j];
+	      string currentType = type[j];
+
+	      currentObjectEstimate.weight.push_back(currentWeight);
+	      currentObjectEstimate.type.push_back(currentType);
+
+	      ROS_INFO("The weight is: %f for object type: %s", currentWeight, currentType.c_str());
+	    }
+
+	    estimate.push_back(currentObjectEstimate);
+	  }
+
+	  res.estimate = estimate;
+	  */
+
+	  return true;
+
+}
+
+
+int main(int argc, char **argv) {
+	/*
+
+  // the last parameter is a string containing the name of the ROS node
+  ros::init(argc, argv, "relational_estimator_server");
+  ros::NodeHandle n;
+  ros::ServiceServer service = n.advertiseService("object_class_prediction", handle_group_estimate);
+  ROS_INFO("Ready to estimate the test scene");
+  ros::spin();
+  */
+  return 0;
+}
+
+
+
+
+
+/*
+
+int main() {
 
 
 		string dir = "/home/marina/workspace_eclipse_scene_object_classification/data/data_more_objects/";
@@ -76,16 +203,15 @@ int main() {
 
 		vector<SceneInformation> allScenes = db.getSceneList();
 		vector<SceneInformation> trainingScenes;
-		vector<SceneInformation> testScenes;
+		// vector<SceneInformation> testScenes;
 
 		for (int i = 0 ; i < 35; i++) {
 			trainingScenes.push_back(allScenes.at(i));
 		}
 		DatabaseInformation trainingDB(trainingScenes);
 
-		for (int i = 35 ; i < 36; i++) {
-			testScenes.push_back(allScenes.at(i));
-		}
+
+
 
 		cout << "the size of the database is: " << db.getNumberOfScenes() << endl;
 		db.printSceneInformation();
@@ -136,13 +262,9 @@ int main() {
 		// ******************************************************************************************************
 		// Test
 
-		//string testFile = listXMLfiles.at(0);
-		//ApiConvertKTHDB testSceneConverter;
-
-		ConfusionMatrix totalCMatrix;
 
 		// for each test scene among the test scenes
-		for (int i = 0; i < testScenes.size(); i++) {
+
 
 			SceneInformation testScene = testScenes.at(i);
 
@@ -229,12 +351,10 @@ int main() {
 		    cMatrix.printConfusionMatrix();
 		    totalCMatrix.sumConfusionMatrix(cMatrix);
 
-		}
-
-		totalCMatrix.printConfusionMatrix();
-		Evaluation * evaluate;
-		evaluate = new Evaluation(totalCMatrix);
-		evaluate->evaluatePerformance();
 
 	return 0;
 }
+
+
+*/
+

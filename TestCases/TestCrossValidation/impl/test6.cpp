@@ -48,7 +48,12 @@ int main() {
 
 	string dir = "/home/marina/workspace_eclipse_scene_object_classification/data/data_more_objects/";
 
+	string filename = "/home/marina/workspace_eclipse_scene_object_classification/data/data_simulation/simulation/after2m.json";
+
 	CrossValidation::computeLOOCrossValidationReal(dir);
+
+	// CrossValidation::computeLOOCrossValidationSimulation(filename);
+
 
 	return 0;
 }

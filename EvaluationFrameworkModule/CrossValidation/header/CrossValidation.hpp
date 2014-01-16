@@ -41,6 +41,8 @@ private:
 public:
 
 	static void computeLOOCrossValidationReal(string);
+	static void computeLOOCrossValidationSimulation(string dir);
+
 };
 
 

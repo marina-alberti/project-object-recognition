@@ -29,6 +29,7 @@ private:
 	int objectID;
 
 	int instanceID;
+	string instanceName;
 
 	float poseX;
 	float poseY;
@@ -46,6 +47,7 @@ public:
 
 	void setObjectID(int);
 	void setInstanceID(int);
+	void setInstanceName(string);
 
 	void setPose(float, float, float);
 	void setAngle2dCentroid(float);
@@ -58,6 +60,7 @@ public:
     // get functions
 	int getObjectID() { return objectID; }
 	int getInstanceID() { return instanceID; }
+	string getInstanceName() { return instanceName; }
 
 	float getPoseX() {return poseX; }
 	float getPoseY() {return poseY; }

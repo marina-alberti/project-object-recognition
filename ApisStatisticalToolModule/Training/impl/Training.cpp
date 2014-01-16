@@ -7,7 +7,7 @@
 
 #include "Training.hpp"
 
-#define TESTFLAG 0
+#define TESTFLAG 1
 #define DEBUG 0
 
 Training::Training(int in) {
@@ -17,12 +17,15 @@ Training::Training(int in) {
 // Calls the learning method (SingleObject)
 void Training::learnGMMSingleObjectFeature(vector<vector<vector<float> > > FMSingleObject, int nclusters, int normalization) {
 
+	int minSamples = 5;
+
 	int fsize = (FMSingleObject[0][0]).size();        // TODO: check
 
     // for each considered object category
 	for ( int i = 0 ; i < FMSingleObject.size(); i++ ) {
 
-		if (DEBUG)  { cout << "Current object:  " << i << endl; }
+		if (TESTFLAG)  { cout << "Current object:  " << i << endl;
+		cout << FMSingleObject.at(i).size() << endl; }
 
 		// Gets the features for the considered object category (<N_SCENES x FEAT_DIM>)
 		vector<vector<float> >  FeatureMatrix = FMSingleObject.at(i);
@@ -59,7 +62,10 @@ void Training::learnGMMSingleObjectFeature(vector<vector<vector<float> > > FMSin
 		cv::Mat weights;
 		vector<cv::Mat> covs;
 		//StatisticalTool learningGMMSingleObjectFeature;
-		StatisticalTool::trainGMM(normalizedFeatMat, nclusters,  means, weights, covs);
+
+		if (normalizedFeatMat.size() > minSamples) {
+			StatisticalTool::trainGMM(normalizedFeatMat, nclusters,  means, weights, covs);
+		}
 
 		// Stores the EM model parameters, weights means and covariance matrices into
 		// the data members of this class
@@ -76,6 +82,7 @@ void Training::learnGMMSingleObjectFeature(vector<vector<vector<float> > > FMSin
 		// and finding the MINIMUM of the likelihoods values.
 		// If likelihood of another unknown test object is lower -> the object cannot belong to the considered class / is an outlier.
 		*/
+		/*
 
 		double minProb = 1000;
 		for (int z = 0; z < normalizedFeatMat.size(); z++) {
@@ -92,7 +99,9 @@ void Training::learnGMMSingleObjectFeature(vector<vector<vector<float> > > FMSin
 			cout << "Model  " << i << "  minprob  " << minProb  << endl;
 		}
 
+
  		thresholdsSingleObject.push_back(minProb);
+ 		*/
 
 		/////**********************************************************************
 

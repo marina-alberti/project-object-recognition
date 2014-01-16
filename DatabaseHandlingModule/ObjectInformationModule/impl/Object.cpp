@@ -108,10 +108,23 @@ void Object::setInstanceName(string inputName) {
   instanceName = inputName;
 }
 
+
+/*
+ * TODO: change for the new dataset and use the "utils"
+ * (or create a new similar) function
+ * to convert from string category label into
+ * int category label::
+ *
+ * actualObjectID = convertStringToIntCategoryLabel(inputName);
+ *
+ */
 void Object::setCategoryName(string inputName) {
+
   categoryName = inputName;
 
-  // Sets also the numerical object category identifiers, based on the category string identifiers.
+  // Sets also the numerical object category identifiers,
+  // based on the category string identifiers.
+
   const char * nameChar = inputName.c_str();
 
   if ( strcmp(nameChar, "Monitor") == 0 ) {

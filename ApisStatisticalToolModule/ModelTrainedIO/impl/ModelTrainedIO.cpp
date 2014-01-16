@@ -8,6 +8,7 @@
 #include "ModelTrainedIO.hpp"
 
 #define TESTFLAG 1
+#define DEBUG 1
 
 
 
@@ -681,15 +682,22 @@ void ModelTrainedIO::storeCovsObjectPairFile(Training & db, string folder) {
 	int nclusters;
 	int featdim;
 
+
+
+
 	// // <ncat X ncat x nclusters x featDim x featDim>
 
 	vector<vector<vector<cv::Mat> > > storedata = db.getcovsObjectPair();
+
+
 	ofstream myfile;
 	myfile.precision(16);
 
 	ncat  = storedata.size();                   // TODO: change
 	nclusters = storedata.at(0).at(0).size();
-	featdim = (storedata.at(0).at(0).at(0)).rows;
+	featdim = (storedata.at(0).at(1).at(0)).rows;
+
+
 
 	string filepath = folder + "/OPEMcovs.txt" ;
 	const char * filepathC = filepath.c_str();
@@ -698,6 +706,8 @@ void ModelTrainedIO::storeCovsObjectPairFile(Training & db, string folder) {
 
 	// convert the Mat object into 2-D matrix
 	myfile << ncat << " " << nclusters << " " << featdim << endl;
+
+
 
 	// for every object category
 	for (int i = 0; i < storedata.size(); i++) {
@@ -1284,6 +1294,10 @@ void ModelTrainedIO::loadMeansSingleObjectFile(string folder, Test & test) {
 				// if the first word is "y"
 				if (strcmp(firstword.c_str(), "y" ) == 0) {
 
+					if (DEBUG)  {
+						// cout << " loaded model" << countLines << endl;
+					}
+
 					double d;
 					while (lineStream >> d) {
 						row.push_back(d);
@@ -1307,15 +1321,32 @@ void ModelTrainedIO::loadMeansSingleObjectFile(string folder, Test & test) {
 	// for every category
 	for (int i = 0; i < ncat; i++ ) {
 
-		cv::Mat currenCat = cv::Mat::zeros ( nclusters, featdim,  CV_64F );
+		cv::Mat currenCat; //  = cv::Mat::zeros ( nclusters, featdim,  CV_64F );
 
 		// for every cluster
 		for (int j = 0; j < nclusters ; j++) {
 
-			// for every feature
-			for (int z = 0; z < featdim; z++) {
-				currenCat.at<double>(j, z) = storevector.at(indexrows).at(z);
+			cv::Mat currentRow; // = cv::Mat::zeros(1, featdim, CV_64F);
+
+
+			// if there are data for this category
+			if (storevector.at(indexrows).size() > 0 ) {
+
+				currentRow = cv::Mat::zeros(1, featdim, CV_64F);
+
+				// for every feature
+				for (int z = 0; z < featdim; z++) {
+					// currenCat.at<double>(j, z) = storevector.at(indexrows).at(z);
+					currentRow.at<double>(z) = storevector.at(indexrows).at(z);
+				}
+
 			}
+
+			else {
+
+			}
+
+			currenCat.push_back(currentRow);
 			indexrows++;
 		}
 		savedata.push_back(currenCat);
@@ -1368,6 +1399,7 @@ void ModelTrainedIO::loadWeightsSingleObjectFile(string folder, Test & test) {
 		cout << endl << "SOEMweights The size of results is: " << currentvector.size() << endl;
 	}
 
+
 	// arrange this data into the vector of cv::Mat
 
 	vector<cv::Mat> savedata;
@@ -1375,13 +1407,23 @@ void ModelTrainedIO::loadWeightsSingleObjectFile(string folder, Test & test) {
 	// for each object category
 	for (int j = 0; j < currentvector.size() ; j++) {
 
-		cv::Mat currentcatweights = cv::Mat::zeros ( currentvector.at(0).size(), 1,  CV_64F );
+		cv::Mat currentcatweights; // = cv::Mat::zeros ( currentvector.at(0).size(), 1,  CV_64F );
 
-		for (int z = 0; z < currentvector.at(j).size(); z++) {
-			currentcatweights.at<double>(z) = currentvector.at(j).at(z);
-			cout << "the values at row and cols " << j << " " << z << "  are " << currentvector.at(j).at(z) << endl;
+
+		if (currentvector.at(j).size() > 0 ) {
+
+			// cv::Mat tmp =  cv::Mat::zeros ( currentvector.at(0).size(), 1,  CV_64F );
+
+			for (int z = 0; z < currentvector.at(j).size(); z++) {
+				currentcatweights.push_back( currentvector.at(j).at(z) );
+				cout << "the values at row and cols " << j << " " << z << "  are " << currentvector.at(j).at(z) << endl;
+			}
+
+			savedata.push_back(currentcatweights.t());
 		}
-		savedata.push_back(currentcatweights.t());
+		else {
+			savedata.push_back(currentcatweights);
+		}
 
 	}
 	test.setweightsSingleObject(savedata);
@@ -1462,15 +1504,24 @@ void ModelTrainedIO::loadCovsSingleObjectFile(string folder, Test & test) {
 
 		for (int j = 0; j < nclusters ; j++) {
 
-			cv::Mat currenCatCovs = cv::Mat::zeros ( featdim, featdim,  CV_64F );
+			cv::Mat currenCatCovs; // = cv::Mat::zeros ( featdim, featdim,  CV_64F );
 
 			for (int z = 0; z < featdim; z++) {
 
-				for (int k = 0; k < storevector.at(indexrows).size(); k++) {
-					currenCatCovs.at<double>(z, k) = storevector.at(indexrows).at(k);
+				cv::Mat currentRow;
+
+				if ( storevector.at(indexrows).size() > 0) {
+
+					currentRow = cv::Mat::zeros(1, featdim, CV_64F);
+
+					for (int k = 0; k < storevector.at(indexrows).size(); k++) {
+						// currenCatCovs.at<double>(z, k) = storevector.at(indexrows).at(k);
+						currentRow.at<double>(z) = storevector.at(indexrows).at(z);
+					}
 				}
 
 				indexrows++;
+				currenCatCovs.push_back(currentRow);
 			}
 
 			tempvector.push_back(currenCatCovs);
@@ -1564,7 +1615,7 @@ void ModelTrainedIO::loadMeansObjectPairFile(string folder, Test & test) {
 		// for every category
 		for  (int i2 = 0; i2 < ncat; i2++ ) {
 
-			cv::Mat currenCatPair;// = cv::Mat::zeros ( nclusters, featdim,  CV_64F );
+			cv::Mat currenCatPair;    // = cv::Mat::zeros ( nclusters, featdim,  CV_64F );
 
 			// for every cluster
 			for (int j = 0; j < nclusters ; j++) {
@@ -1599,7 +1650,7 @@ void ModelTrainedIO::loadMeansObjectPairFile(string folder, Test & test) {
 
 	test.setmeansObjectPair(savedata);
 
-	if (DEBUG) {
+	if (TESTFLAG) {
 		cout << endl << "EM means OP : The size of results is: " << savedata.size() << endl;
 	}
 }
@@ -1906,22 +1957,77 @@ void ModelTrainedIO::storeTrainingToFile(Training & db, string folder ) {
 
 
 	storeMeanNormalizationSingleObjectFile(db, folder);
+
+
+	if (DEBUG)  {
+		cout << " store 1" << endl;
+	}
 	storeStdNormalizationSingleObjectFile(db, folder);
+
+	if (DEBUG)  {
+		cout << " store 2" << endl;
+	}
+
 	storeMinFeatSingleObjectFile(db, folder);
+
+	if (DEBUG)  {
+		cout << " store 3" << endl;
+	}
+
 	storeMaxFeatSingleObjectFile(db, folder);
+
+	if (DEBUG)  {
+		cout << " store 4" << endl;
+	}
+
 	storeMeanNormalizationObjectPairFile(db, folder);
+
+	if (DEBUG)  {
+		cout << " store 5" << endl;
+	}
 	storeStdNormalizationObjectPairFile(db, folder);
+	if (DEBUG)  {
+		cout << " store 6" << endl;
+	}
+
 	storeMinFeatObjectPairFile(db, folder);
+	if (DEBUG)  {
+		cout << " store 7" << endl;
+	}
 	storeMaxFeatObjectPairFile(db, folder);
+	if (DEBUG)  {
+		cout << " store 8" << endl;
+	}
 
 	storeMeansSingleObjectFile(db, folder);
+	if (DEBUG)  {
+		cout << " store 9" << endl;
+	}
 	storeWeightsSingleObjectFile(db, folder);
+	if (DEBUG)  {
+		cout << " store 10" << endl;
+	}
 	storeCovsSingleObjectFile(db, folder);
+	if (DEBUG)  {
+		cout << " store 11" << endl;
+	}
 	storeMeansObjectPairFile(db, folder);
+	if (DEBUG)  {
+		cout << " store 12" << endl;
+	}
 	storeWeightsObjectPairFile(db, folder);
+	if (DEBUG)  {
+		cout << " store 13" << endl;
+	}
 	storeCovsObjectPairFile(db, folder);
+	if (DEBUG)  {
+		cout << " store 14" << endl;
+	}
 
 	storeThresholdSingleObject(db, folder);
+	if (DEBUG)  {
+		cout << " store 15" << endl;
+	}
 
 }
 
@@ -1938,8 +2044,14 @@ void ModelTrainedIO::loadTrainedGMMsFile(string folder, Test & test) {
 	loadStdNormalizationObjectPairFile(folder, test);
 	loadMinFeatObjectPairFile(folder, test);
 	loadMaxFeatObjectPairFile(folder, test);
-
+	if (DEBUG)  {
+		cout << " load a" << endl;
+	}
 	loadMeansSingleObjectFile(folder, test);
+
+	if (DEBUG)  {
+		cout << " load b" << endl;
+	}
 	loadWeightsSingleObjectFile(folder, test);
 	loadCovsSingleObjectFile(folder, test);
 	loadMeansObjectPairFile(folder, test);

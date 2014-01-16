@@ -2,7 +2,8 @@ cmake_minimum_required (VERSION 2.6)
 
 project (SceneClassification)
 
-find_package( PCL 1.4 REQUIRED COMPONENTS visualization filters segmentation )
+find_package(catkin REQUIRED COMPONENTS geometry_msgs roscpp rospy std_msgs strands_qsr_msgs)
+find_package( PCL 1.4 REQUIRED COMPONENTS visualization filters segmentation  )
 find_package( OpenCV REQUIRED )
 
 include_directories(${PCL_INCLUDE_DIRS})
@@ -36,13 +37,13 @@ include_directories(EvaluationFrameworkModule/ApiConvertionResultsTestConfusionM
 include_directories(EvaluationFrameworkModule/ConfusionMatrix/header)
 include_directories(EvaluationFrameworkModule/Evaluation/header)
 include_directories(EvaluationFrameworkModule/CrossValidation/header)
-
+include_directories(DatabaseHandlingModule/ApisConvertionModule/ApiConvertServiceFormat/header)
 
 #add_library( sceneClassification DatabaseHandlingModule/ObjectInformationModule/impl/Object.cpp DatabaseHandlingModule/SceneInformationModule/impl/SceneInformation.cpp DatabaseHandlingModule/DatabaseInformationModule/impl/DatabaseInformation.cpp DatabaseHandlingModule/ApisConvertionModule/ApiConvertKTHDBModule/impl/ApiConvertKTHDB.cpp )
 
 add_library( SceneClassification DatabaseHandlingModule/ObjectInformationModule/impl/Object.cpp DatabaseHandlingModule/SceneInformationModule/impl/SceneInformation.cpp DatabaseHandlingModule/ApisConvertionModule/ApiConvertKTHDBModule/impl/ApiConvertKTHDB.cpp DatabaseHandlingModule/ApisConvertionModule/ApiConvertSimulationDBModule/impl/ApiConvertSimulationDB.cpp DatabaseHandlingModule/DatabaseInformationModule/impl/DatabaseInformation.cpp  utils/impl/utils.cpp FeatureExtractionModule/ApisFeatureExtraction/ApiFeatureExtractionDatabaseSingleObject/impl/ApiFeatureExtractionDatabaseSingleObject.cpp FeatureExtractionModule/ApisFeatureExtraction/ApiFeatureExtractionDatabaseObjectPair/impl/ApiFeatureExtractionDatabaseObjectPair.cpp FeatureExtractionModule/ApisFeatureExtraction/ApiFeatureExtractionSceneSingleObject/impl/ApiFeatureExtractionSceneSingleObject.cpp FeatureExtractionModule/ApisFeatureExtraction/ApiFeatureExtractionSceneObjectPair/impl/ApiFeatureExtractionSceneObjectPair.cpp FeatureExtractionModule/ApisFeatureExtraction/ApiFeatureExtractionSingleObject/impl/ApiFeatureExtractionSingleObject.cpp
 FeatureExtractionModule/ApisFeatureExtraction/ApiFeatureExtractionObjectPair/impl/ApiFeatureExtractionObjectPair.cpp FeatureExtractionModule/DatabaseSingleObjectFeatureModule/impl/DatabaseSingleObjectFeature.cpp FeatureExtractionModule/DatabaseObjectPairFeatureModule/impl/DatabaseObjectPairFeature.cpp FeatureExtractionModule/SceneSingleObjectFeatureModule/impl/SceneSingleObjectFeature.cpp FeatureExtractionModule/SceneObjectPairFeatureModule/impl/SceneObjectPairFeature.cpp FeatureExtractionModule/SingleObjectFeatureModule/impl/SingleObjectFeature.cpp FeatureExtractionModule/ObjectPairFeatureModule/impl/ObjectPairFeature.cpp ApisStatisticalToolModule/ArrangeFeatureTraining/impl/ArrangeFeatureTraining.cpp ApisStatisticalToolModule/Training/impl/Training.cpp ApisStatisticalToolModule/StatisticalToolModule/impl/StatisticalTool.cpp ApisStatisticalToolModule/ModelTrainedIO/impl/ModelTrainedIO.cpp ApisStatisticalToolModule/ArrangeFeatureTestScene/impl/ArrangeFeatureTestScene.cpp ApisStatisticalToolModule/Test/impl/Test.cpp ApiDatabaseFrequencies/impl/ApiStatisticsDatabase.cpp ApisStatisticalToolModule/ApiGraph/impl/ApiGraph.cpp EvaluationFrameworkModule/ApiConvertionResultsTestConfusionMatrix/impl/ApiConvertionResultsTestConfusionMatrix.cpp EvaluationFrameworkModule/ConfusionMatrix/impl/ConfusionMatrix.cpp EvaluationFrameworkModule/Evaluation/impl/Evaluation.cpp EvaluationFrameworkModule/CrossValidation/impl/CrossValidation.cpp
-)
+ DatabaseHandlingModule/ApisConvertionModule/ApiConvertServiceFormat/impl/ApiConvertServiceFormat.cpp)
 
 add_executable(test TestCases/TestCase1/impl/test.cpp)
 add_executable(test2 TestCases/TestCaseModelTrainedIO/impl/test2.cpp)
@@ -50,6 +51,9 @@ add_executable(test3 TestCases/TestCaseSimulation/impl/test3.cpp)
 add_executable(test4 TestCases/TestCaseTrainingTest/impl/test4.cpp)
 add_executable(test5 TestCases/TestApiGraph/impl/test5.cpp)
 add_executable(test6 TestCases/TestCrossValidation/impl/test6.cpp)
+add_executable(object_classification_service TestCases/ROSService/object_classification_service.cpp)
+add_executable(runTraining TestCases/RunTraining/impl/runTraining.cpp)
+
 #add_executable(test_object_class_prediction test_object_class_prediction.cpp)
 
 target_link_libraries( test SceneClassification)
@@ -58,71 +62,12 @@ target_link_libraries( test3 SceneClassification)
 target_link_libraries( test4 SceneClassification)
 target_link_libraries( test5 SceneClassification)
 target_link_libraries( test6 SceneClassification)
+target_link_libraries( object_classification_service SceneClassification)
+target_link_libraries( runTraining SceneClassification)
+
+
+
 #target_link_libraries( test_object_class_prediction sceneClassification)
 target_link_libraries( SceneClassification ${OpenCV_LIBS} )
 target_link_libraries( test ${OpenCV_LIBS} )
-
-
-
-
-#add_library( SceneInformation DatabaseHandlingModule/SceneInformationModule/impl/SceneInformation.cpp )
-#add_library( ApiConvertKTHDB DatabaseHandlingModule/ApisConvertionModule/ApiConvertKTHDBModule/impl/ApiConvertKTHDB.cpp  )
-#add_library( ApiConvertSimulationDB DatabaseHandlingModule/ApisConvertionModule/ApiConvertSimulationDBModule/impl/ApiConvertSimulationDB.cpp  )
-#add_library( DatabaseInformation DatabaseHandlingModule/DatabaseInformationModule/impl/DatabaseInformation.cpp )
-#add_library( utils utils/impl/utils.cpp )
-
-#add_library( ApiFeatureExtraction ApiFeatureExtraction.cpp )
-#add_library( ObjectFeatures ObjectFeatures.cpp )
-#add_library( ObjectPairFeatures ObjectPairFeatures.cpp )
-#add_library( FeatureInformation FeatureInformation.cpp  )
-#add_library(  AllFeatSingleObject AllFeatSingleObject.cpp )
-#add_library( AllFeatPairObject AllFeatPairObject.cpp )
-#add_library( TestScene TestScene.cpp )
-#add_library( LOOCV LOOCV.cpp  )
-#add_library( utils utils.cpp)
-#add_library( Training Training.cpp)
-
-#target_link_libraries( test DatabaseInformation Object SceneInformation ApiConvertKTHDB)
-#target_link_libraries( SceneInformation Object )
-#target_link_libraries( ApiConvertKTHDB Object )
-#target_link_libraries( DatabaseInformation SceneInformation )
-#target_link_libraries( DatabaseInformation ApiConvertKTHDB )
-#target_link_libraries( DatabaseInformation ApiConvertSimulationDB )
-#target_link_libraries( ApiConvertKTHDB SceneInformation )
-#target_link_libraries( ApiConvertKTHDB DatabaseInformation )
-#target_link_libraries( ApiConvertKTHDB utils )
-
-#target_link_libraries( test DatabaseInformation Object SceneInformation ApiConvertKTHDB ObjectFeatures ApiFeatureExtraction FeatureInformation ObjectPairFeatures TestScene AllFeatSingleObject LOOCV AllFeatPairObject utils )
-#target_link_libraries( AllFeatSingleObject FeatureInformation)
-#target_link_libraries( AllFeatPairObject FeatureInformation)
-#target_link_libraries( DatabaseInformation SceneInformation )
-#target_link_libraries( DatabaseInformation ApiConvertKTHDB )
-#target_link_libraries( SceneInformation Object )
-#target_link_libraries( ObjectFeatures Object )
-#target_link_libraries( ApiFeatureExtraction SceneInformation )
-#target_link_libraries( ApiFeatureExtraction ObjectFeatures )
-#target_link_libraries( ApiFeatureExtraction ObjectPairFeatures )
-#target_link_libraries( ObjectPairFeatures Object)
-#target_link_libraries( DatabaseInformation ApiFeatureExtraction )
-#target_link_libraries( SceneInformation FeatureInformation ) 
-#target_link_libraries( ObjectFeatures FeatureInformation)
-#target_link_libraries( ObjectPairFeatures FeatureInformation)
-#target_link_libraries( ApiFeatureExtraction FeatureInformation)
-#target_link_libraries( TestScene Object)
-#target_link_libraries( TestScene ObjectFeatures)
-#target_link_libraries( LOOCV DatabaseInformation)
-#target_link_libraries( LOOCV TestScene)
-#target_link_libraries( SceneInformation AllFeatSingleObject)
-#target_link_libraries( DatabaseInformation AllFeatSingleObject)
-#target_link_libraries( SceneInformation AllFeatPairObject)
-#target_link_libraries( DatabaseInformation AllFeatPairObject)
-#target_link_libraries( DatabaseInformation utils)
-#target_link_libraries( TestScene utils)
-#target_link_libraries( Training DatabaseInformation)
-#target_link_libraries( TestScene DatabaseInformation)
-#target_link_libraries( DatabaseInformation ${OpenCV_LIBS} )
-#target_link_libraries( test ${OpenCV_LIBS} )
-
-
-
 

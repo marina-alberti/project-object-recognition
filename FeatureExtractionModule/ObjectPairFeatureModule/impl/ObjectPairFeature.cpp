@@ -24,6 +24,13 @@ void ObjectPairFeature::setInstanceID2(int in ) {
 	instanceID2 = in;
 }
 
+void ObjectPairFeature::setInstanceName1(string in ) {
+	instanceName1 = in;
+}
+
+void ObjectPairFeature::setInstanceName2(string in ) {
+	instanceName2 = in;
+}
 
 void ObjectPairFeature::setEuclideanDistance(float in) {
 	EuclideanDistance = in;

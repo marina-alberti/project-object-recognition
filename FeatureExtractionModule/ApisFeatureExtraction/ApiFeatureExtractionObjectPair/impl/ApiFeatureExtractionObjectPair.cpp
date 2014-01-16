@@ -16,6 +16,12 @@ void ApiFeatureExtractionObjectPair::extractFeatures(Object & refObject, Object 
 	int objectID2 =  targetObject.getActualObjectID();
 	out.setObjectID2(objectID2);
 
+	string instanceName1 = refObject.getInstanceName();
+	string instanceName2 = targetObject.getInstanceName();
+	out.setInstanceName1(instanceName1);
+	out.setInstanceName2(instanceName2);
+
+
 	int instanceID1 = refObject.getInstanceID();
 	int instanceID2 = targetObject.getInstanceID();
 	out.setInstanceID1(instanceID1);

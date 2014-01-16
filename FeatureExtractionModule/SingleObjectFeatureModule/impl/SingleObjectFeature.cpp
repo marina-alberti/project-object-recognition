@@ -18,6 +18,10 @@ void SingleObjectFeature::setInstanceID(int i) {
 
 }
 
+void SingleObjectFeature::setInstanceName(string i) {
+	instanceName = i;
+}
+
 void SingleObjectFeature::setPose(float x, float y, float z) {
 	poseX = x;
 	poseY = y;

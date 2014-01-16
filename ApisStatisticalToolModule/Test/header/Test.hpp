@@ -12,6 +12,10 @@
 #include "Training.hpp"
 #include "utils.hpp"
 #include "ApiGraph.hpp"
+#include "ros/ros.h"
+#include "strands_qsr_msgs/GetGroupClassification.h"
+#include "strands_qsr_msgs/BBox.h"
+#include "strands_qsr_msgs/ObjectClassification.h"
 // #include <tuple>
 
 
@@ -19,7 +23,7 @@ using namespace std;
 
 typedef pair<int, int> idCategoryPair;
 typedef pair<idCategoryPair, double> pairScore;
-
+typedef map<int, double> mapCategoryConfidence;
 
 class Test {
 
@@ -85,6 +89,14 @@ public:
 
 	// // TODO :: use the subset of possible object category labels i.e. the categoryList in input
 	path voting(ArrangeFeatureTestScene & testfeatures, int normalization, vector<vector<double> > & votingTable);
+
+
+	// // Other version of the "voting scheme" function has the additional argument: vector<int> categoryList to limit the search to
+	// // a subset of possible object categories
+	vector<strands_qsr_msgs::ObjectClassification> voting(ArrangeFeatureTestScene & testfeatures, int normalization, vector<vector<double> > & votingTable, vector<int> categoryList, vector<string> categoryListString, map<string, mapCategoryConfidence> objectClassificationMap);
+
+	static map<string, mapCategoryConfidence> convertObjectClassificationMsgToIDS(vector<strands_qsr_msgs::ObjectClassification> inVector);
+
 
 
 	// // TODO : add feature normalization

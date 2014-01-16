@@ -73,7 +73,7 @@ void ApiConvertSimulationDB::parseSceneJSON(boost::property_tree::ptree::value_t
         newObject.setCategoryName(objectList.second.get_value<std::string>());
 
         // // added may need change.
-        //// the instance id is an int following the same order of appearence of the objects in the scene
+        //// the instance id is an int following the same order of appearance of the objects in the scene
         newObject.setInstanceID(counter);
 
         objectVector.push_back(newObject);
@@ -171,7 +171,7 @@ of the object bounding box (length, width and height)
 to vary the object size.
 The possible range of the variations is defined by a parameter.
  */
-vector<pcl::PointXYZ> addNoiseBoundingBox(vector<pcl::PointXYZ> boundingBoxVertices, int noiseAmount) {
+vector<pcl::PointXYZ> ApiConvertSimulationDB::addNoiseBoundingBox(vector<pcl::PointXYZ> boundingBoxVertices, int noiseAmount) {
 
 	double x1 = boundingBoxVertices.at(0).x;
 	double y1 = boundingBoxVertices.at(0).y;
