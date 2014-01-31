@@ -9,6 +9,7 @@
 
 #define TESTFLAG 1
 
+
 path Test::predictObjectClassesOnlySOF(ArrangeFeatureTestScene & testfeatures, int normalization) {
 
 	vector<SingleObjectFeature> listSOF = testfeatures.getListSOF();
@@ -18,9 +19,11 @@ path Test::predictObjectClassesOnlySOF(ArrangeFeatureTestScene & testfeatures, i
 	// For each object instance in the objectList of the scene
 	for (int i  = 0; i < listSOF.size(); i++ ) {
 
+
 		if (TESTFLAG) {
 	        cout << std::endl << "Predict object class for unknown object in the object list : " << i << endl;
 		}
+
 
 		// Gets the "single object features"  (SOF) for the current object
 		vector<float> features = listSOF.at(i).getAllFeatures();
@@ -221,6 +224,10 @@ path Test::voting(ArrangeFeatureTestScene & testfeatures, int normalization, vec
 		votingTable.push_back(temp);
 	}
 
+	if (TESTFLAG) {
+		cout << "inside voting 1" << endl;
+	}
+
 	// for each pair of test objects - different test objects !
 	for (int p = 0; p < listSOF.size(); p++) {
 		for (int q = 0; q < listSOF.size(); q++) {
@@ -235,6 +242,10 @@ path Test::voting(ArrangeFeatureTestScene & testfeatures, int normalization, vec
 				vector<float> pairfeatures = opf.getAllFeatures();
 				// test against all possible models
 
+				if (TESTFLAG) {
+					cout << "inside voting 2" << endl;
+				}
+
 				// // for each possible combination of object category labels for the considered test object
 				for (int i = 0; i < meansSingleObject.size(); i++) {
 					for (int j = 0; j < meansSingleObject.size(); j++) {
@@ -247,6 +258,10 @@ path Test::voting(ArrangeFeatureTestScene & testfeatures, int normalization, vec
 						cv::Mat refmeans = meansSingleObject.at(i); 				//  dims x nclusters
 						cv::Mat refweights = weightsSingleObject.at(i);  			//  nclusters x 1
 						vector<cv::Mat> refcovs = covsSingleObject.at(i);      		//  nclusters x dims x dims
+
+						if (TESTFLAG) {
+							cout << "inside voting 3" << endl;
+						}
 
 				    	vector<float> refnormalizedFeatMat;
 						if (normalization == 1) {
@@ -264,12 +279,31 @@ path Test::voting(ArrangeFeatureTestScene & testfeatures, int normalization, vec
 						else if (normalization == 0) {
 							refnormalizedFeatMat = reffeatures;
 						}
+
+						if (TESTFLAG) {
+							cout << "inside voting 4" << endl;
+							cout << "inside voting 4 size feat = " << reffeatures.size() <<  endl;
+							cout << "inside voting 4 size means = " << refmeans.size() << endl;
+							cout << "inside voting 4 size covs = " << refcovs.size() <<  endl;
+							cout << "inside voting 4 size weights  = " << refweights.size() << endl;
+
+
+						}
+
 						double refprob = StatisticalTool::computeGMMProbability(reffeatures, refmeans, refcovs, refweights );
+
+						if (TESTFLAG) {
+							cout << "inside voting 5" << endl;
+						}
 
 						// compute a-priori probability of object classes in terms of frequency of appearance in the training database
 						double refObjectCategoryFreq = frequencySingleObject[i];
 
 						double refprobPosterior = refprob * refObjectCategoryFreq;
+
+						if (TESTFLAG) {
+							cout << "inside voting 3" << endl;
+						}
 
 						// ***************************************************************
 						// THE TARGET
@@ -913,8 +947,20 @@ path Test::optimizationGreedy(ArrangeFeatureTestScene & testfeatures, vector<vec
 		nontraversed[objectID] = true;
 	}
 
+	if (TESTFLAG) {
+		cout << "0" << endl;
+	}
+
 	idCategoryPair startIdCategoryPair = findMaximumScoreVotingTable(votingTable);
+
+	if (TESTFLAG) {
+		cout << "1" << endl;
+	}
 	optimizedPath[startIdCategoryPair.first] = startIdCategoryPair.second;
+
+	if (TESTFLAG) {
+		cout << "2" << endl;
+	}
 
 	// erase map by key
 	nontraversed.erase(startIdCategoryPair.first);
@@ -1032,6 +1078,7 @@ path Test::exhaustiveSearch(ArrangeFeatureTestScene & testfeatures, int normaliz
 
 	if (TESTFLAG) {
 		cout << "exhaustiveSearch: begin." << endl;
+		cout << "size of allPaths =  " << allPaths.size() << endl;
 	}
 
 	// the output is a vector of double where each element is the score of a path - from the path list allPaths.
@@ -1039,11 +1086,21 @@ path Test::exhaustiveSearch(ArrangeFeatureTestScene & testfeatures, int normaliz
 
 	// for each path in allPaths - the list of paths
 	for (int i = 0; i < allPaths.size(); i++) {
+
 		path currentPath = allPaths.at(i);
 
+		if (TESTFLAG) {
+			cout << "exhaustiveSearch: path number" << i << endl;
+		}
+
 		// DECIDE WHICH SCORING STRATEGY TO USE !!! TODO
+
 		double currentPathScore = computeScoreCliqueVotingStrategy(testfeatures,  normalization, currentPath);
 		// double currentPathScore = computeScoreCliqueProduct(testfeatures,  normalization, currentPath);
+
+		if (TESTFLAG) {
+			cout << "exhaustiveSearch: path number" << i << "  After computing score clique " << endl;
+		}
 
 		allPathScores.push_back(currentPathScore);
 
@@ -1055,6 +1112,7 @@ path Test::exhaustiveSearch(ArrangeFeatureTestScene & testfeatures, int normaliz
 			}
 		}
 	}
+
 	int maximumPosition = computeMaximum(allPathScores);
 	double maximumPathScore = computeMaximumValue(allPathScores);
 	path maximumScorePath = allPaths.at(maximumPosition);

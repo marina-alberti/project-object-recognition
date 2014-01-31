@@ -25,7 +25,9 @@ void ApiFeatureExtractionDatabaseSingleObject::extract(DatabaseInformation & dat
 		SceneSingleObjectFeature currentObjectFeature;
 
 		// extracts the features in the current scene (features organized at the scene level)
-		ApiFeatureExtractionSceneSingleObject::extract( *it, currentObjectFeature );
+		// ApiFeatureExtractionSceneSingleObject::extract( *it, currentObjectFeature );
+		ApiFeatureExtractionSceneSingleObject::extractNoReference( *it, currentObjectFeature );
+
 
 		// adds the features organized at the scene level to the features organized at the database level in output
 		out.addSceneSingleObjectFeature(currentObjectFeature);

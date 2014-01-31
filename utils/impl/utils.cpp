@@ -25,6 +25,32 @@ int computeMaximum(vector<double> in) {
 	return maxposition;
 }
 
+
+double computeAverage(vector<double> in) {
+
+	double average;
+	double sumValues = 0;
+	for (int i = 0; i < in.size(); i++) {
+		sumValues += in.at(i);
+	}
+	average = sumValues / in.size();
+	return average;
+}
+
+
+double computeAverage(vector<int> in) {
+
+	double average;
+	double sumValues = 0;
+	for (int i = 0; i < in.size(); i++) {
+		sumValues += (double)( in.at(i));
+	}
+	average = (double) (sumValues / in.size());
+	return average;
+}
+
+
+
 int computeEqualPosition(vector<int> in, int test) {
 
 	int position;
@@ -135,10 +161,9 @@ void evaluatePerformance(cv::Mat cMatrix) {
       << "recall:    " << _recall << endl << "Fmeasure:  " << fm << endl;
 
     }
-
   }
-
 }
+
 
 /*
 Input: the name of the directory containing the files.
@@ -169,62 +194,158 @@ vector<string> storeFileNames(string dirname) {
   return filesList;
 }
 
+
 /*
  * Based on the used list of training objects
  * for real world new dataset (simulation dataset)
  * A single string value is converted into a single int value
  */
-int convertStringToIntCategoryLabel(string stringLabel) {
+int convertStringToIntCategoryLabel(string inputName) {
 
+	int datasetOption = 1;
 	int intLabel;
+        const char * nameChar = inputName.c_str();
 
-	if (stringLabel == "Mouse" ) {
+
+	if (datasetOption == 0) {
+		if (strcmp(nameChar, "Monitor") == 0 ) {
+			intLabel = 0;
+		}
+		else if (strcmp(nameChar, "Keyboard") == 0 ){
+			intLabel = 1;
+		}
+		else if (strcmp(nameChar,"Mouse")== 0 ) {
+			intLabel = 2;
+		}
+		else if (strcmp(nameChar,"Papers")== 0 ) {
+			intLabel = 3;
+		}
+		else if (strcmp(nameChar, "Book")== 0 ) {
+			intLabel = 4;
+		}
+		else if (strcmp(nameChar, "Notebook")== 0 ) {
+			intLabel = 5;
+		}
+		else if (strcmp(nameChar, "Laptop")== 0 ) {
+			intLabel = 6;
+		}
+		else if (strcmp(nameChar,"Mobile")== 0 ) {
+			intLabel = 7;
+		}
+		else if (strcmp(nameChar, "Mug")== 0 ) {
+			intLabel = 8;
+		}
+		else if (strcmp(nameChar,"Glass")== 0 ) {
+			intLabel = 9;
+		}
+		//else if (strcmp(nameChar, "Flask")== 0 ) {
+			//intLabel = 10;
+		//}
+		else if (strcmp(nameChar, "Jug")== 0 ) {
+			intLabel = 10;
+		}
+		else if (strcmp(nameChar, "Lamp")== 0 ) {
+			intLabel = 11;
+		}
+		else if (strcmp(nameChar, "Bottle")== 0 ) {
+			intLabel = 12;
+		}
+		else if (strcmp(nameChar, "Headphones")== 0 ) {
+			intLabel = 13;
+		}
+		else {
+			intLabel = -1;
+		}																																																																																																																																																												
+	}
+
+        ////////////////////////////////////////
+	if (datasetOption == 1) {
+		if ( strcmp(nameChar, "Monitor") == 0 ) {
 		intLabel = 0;
-	}
-	else if (stringLabel == "Keyboard") {
+		}
+		if ( strcmp(nameChar, "Keyboard") == 0 ) {
 		intLabel = 1;
-	}
-	else if (stringLabel == "Monitor") {
+		}
+		if (strcmp(nameChar, "Mouse") == 0 ) {
 		intLabel = 2;
-	}
-	else if (stringLabel == "Papers") {
+		}
+		if ( strcmp(nameChar, "Cup") == 0 ) {
 		intLabel = 3;
-	}
-	else if (stringLabel == "Book") {
+		}
+		if (strcmp(nameChar, "Lamp") == 0 ) {
 		intLabel = 4;
-	}
-	else if (stringLabel == "NoteBook") {
+		}
+		if (strcmp(nameChar, "Pencil") == 0) {
 		intLabel = 5;
-	}
-	else if (stringLabel == "Mobile") {
+		}
+		if (strcmp(nameChar, "Laptop") == 0 ) {
 		intLabel = 6;
-	}
-	else if (stringLabel == "Mug") {
+		}
+
+		// new object categories added from the classes present in the simulated scenes
+		if (strcmp(nameChar, "Book") == 0) {
 		intLabel = 7;
-	}
-	else if (stringLabel == "Glass") {
+		}
+		if (strcmp(nameChar, "Bottle") == 0) {
 		intLabel = 8;
-	}
-	else if (stringLabel == "Flask") {
+		}
+		if (strcmp(nameChar, "Calculator") == 0) {
 		intLabel = 9;
-	}
-	else if (stringLabel == "Book") {
+		}
+		if (strcmp(nameChar, "PC") == 0) {
 		intLabel = 10;
-	}
-	else if (stringLabel == "Jug") {
+		}
+		if (strcmp(nameChar, "Glass") == 0) {
 		intLabel = 11;
+		}
+		if (strcmp(nameChar, "Headphone") == 0) {
+		intLabel = 12;
+		}
+		if (strcmp(nameChar, "Keys") == 0) {
+		intLabel = 13;
+		}
+		if (strcmp(nameChar, "MobilePhone") == 0) {
+		intLabel = 14;
+		}
+		if (strcmp(nameChar, "Stapler") == 0) {
+		intLabel = 15;
+		}
+		if (strcmp(nameChar, "Telephone") == 0) {
+		intLabel = 16;
+		}
+		else {
+			intLabel = -1;
+		}
 	}
+
+	  return intLabel;
+
+
 }
 
 vector<int> convertStringToIntCategoryLabelVector(vector<string> stringLabels) {
 
+	vector<int> out;
 	for (int i = 0; i < stringLabels.size(); i++) {
 
 		int currentIntLabel = convertStringToIntCategoryLabel(stringLabels.at(i));
+		out.push_back(currentIntLabel);
 
 	}
+	return out;
+}
+
+string convertInt(int number)
+{
+   stringstream ss;   //create a stringstream
+   ss << number;      //add number to the stream
+   return ss.str();   //return a string with the contents of the stream
+}
 
 
+bool IsFiniteNumber(float x)
+{
+    return (x <= DBL_MAX && x >= -DBL_MAX);
 }
 
 

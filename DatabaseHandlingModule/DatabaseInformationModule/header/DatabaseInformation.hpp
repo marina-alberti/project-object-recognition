@@ -28,6 +28,7 @@
 #include "ApiConvertSimulationDB.hpp"
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
+#include "ApiConvertRealWorldDB.hpp"
 
 
 class DatabaseInformation{
@@ -52,6 +53,8 @@ public:
   void loadAnnotations_KTH(vector<string>);
 
   void loadAnnotations_Simulation(string);
+
+  void loadAnnotations_RealWorld(string);
 
   int getNumberOfScenes() { return numberOfScenes; }
 

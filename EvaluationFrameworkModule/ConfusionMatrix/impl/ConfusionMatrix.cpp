@@ -5,10 +5,11 @@
  *      Author: marina
  */
 
+
 #include "ConfusionMatrix.hpp"
 #include <vector>
 
-#define TESTFLAG 0
+#define TESTFLAG 1
 
 ConfusionMatrix::ConfusionMatrix() {
 
@@ -44,9 +45,17 @@ void ConfusionMatrix::printConfusionMatrix() {
 void ConfusionMatrix::incrementConfusionMatrix(int categoryLabelActual, int categoryLabelPredicted) {
 
 	if (categoryLabelActual < size && categoryLabelPredicted < size) {
-		cMatrix.at<int>(categoryLabelActual, categoryLabelPredicted) ++;
-		if (TESTFLAG) {
-			cout << "setConfusionMatrix: size computed is =  " << cMatrix.rows << "   " << cMatrix.cols <<endl;
+		if (categoryLabelActual >= 0) {
+			cMatrix.at<int>(categoryLabelActual, categoryLabelPredicted) ++;
+
+			if (TESTFLAG) {
+				cout << "setConfusionMatrix: size computed is =  " << cMatrix.rows << "   " << cMatrix.cols <<endl;
+			}
+		}
+		else {
+			if (TESTFLAG) {
+				cout << "The actual label is another category not modeled!" << endl;
+			}
 		}
 	}
 	else {
@@ -55,9 +64,14 @@ void ConfusionMatrix::incrementConfusionMatrix(int categoryLabelActual, int cate
 	}
 
 
+
 }
 
 void ConfusionMatrix::sumConfusionMatrix(ConfusionMatrix in) {
+
+	if (TESTFLAG) {
+		cout << "In : ConfusionMatrix::sumConfusionMatrix " << endl;
+	}
 
 	if (in.getConfusionMatrixSize() == size) {
 		cMatrix = cMatrix + (in.getConfusionMatrix()).clone();

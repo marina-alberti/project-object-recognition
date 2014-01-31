@@ -112,6 +112,7 @@ void ApiConvertKTHDB::parseObject(boost::property_tree::ptree & parent, SceneInf
 
   newObject.setInstanceName(parent.get<std::string>(TAG_NAME));
 
+
   // setting the name sets also the numeric object ID
   newObject.setObjectName(parent.get<std::string>(TAG_NAME));
 

@@ -34,6 +34,7 @@ private:
 	pcl::PointXYZ referenceCentroid;
 	float referenceLength;
 	float referenceWidth;
+	string sceneFold;
 
 public:
 
@@ -46,12 +47,15 @@ public:
 	void setReferenceWidth(float);
 	void setReferenceCentroid();
 
+	void setSceneFold(string i) {sceneFold = i;}
+
 	vector<Object> getObjectList();
 	string getType();
 	float getReferenceLength();
 	float getReferenceWidth();
 	pcl::PointXYZ getReferenceCentroid();
 	int getNumberOfObjects() { return numberOfObjects; }
+	string getSceneFold() {return sceneFold; }
 
 	void showSceneInformation();
 

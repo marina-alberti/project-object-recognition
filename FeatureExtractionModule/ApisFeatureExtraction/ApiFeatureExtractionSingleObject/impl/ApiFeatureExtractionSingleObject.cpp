@@ -19,7 +19,7 @@ void ApiFeatureExtractionSingleObject::extractFeatures(Object & inputObject , pc
 	out.setInstanceID(instanceID);
 	out.setInstanceName(instanceName);
 
-	computePose(inputObject, refCentroid);
+	computePose(inputObject);
 
 	computeAngle2dCentroid(inputObject, refCentroid);
 
@@ -33,7 +33,6 @@ void ApiFeatureExtractionSingleObject::extractFeatures(Object & inputObject , pc
 
 	computeSizeProjectedZ(inputObject);
 
-
 	out.setPose(poseX, poseY, poseZ);
 	out.setAngle2dCentroid(angle2d);
 	out.setAngle2d(angle2dCentroid);
@@ -42,11 +41,52 @@ void ApiFeatureExtractionSingleObject::extractFeatures(Object & inputObject , pc
 	out.setSizeProjectedY(sizeProjectedY);
 	out.setSizeProjectedZ(sizeProjectedZ);
 
+}
+
+void ApiFeatureExtractionSingleObject::extractFeaturesNoReference(Object & inputObject ,SingleObjectFeature & out){
+
+	int objectID =  inputObject.getActualObjectID();
+	int instanceID = inputObject.getInstanceID();
+	string instanceName = inputObject.getInstanceName();
+
+	out.setObjectID(objectID);
+	out.setInstanceID(instanceID);
+	out.setInstanceName(instanceName);
+
+
+
+	computePose(inputObject);
+	out.setPose(poseX, poseY, poseZ);
+
+
+	// // // // // computeAngle2dCentroid(inputObject, refCentroid);
+	// // // // // out.setAngle2dCentroid(angle2dCentroid);
+
+	computeAngle2d(inputObject);
+	out.setAngle2d(angle2d);
+
+	computeSizeProjectedX(inputObject);
+	out.setSizeProjectedX(sizeProjectedX);
+
+	computeSizeProjectedY(inputObject);
+	out.setSizeProjectedY(sizeProjectedY);
+
+
+
+
+	computeVolumeSize(inputObject);
+	out.setVolume(volumeSize);
+
+	computeSizeProjectedZ(inputObject);
+	out.setSizeProjectedZ(sizeProjectedZ);
+
+
+
+
 
 }
 
-
-void ApiFeatureExtractionSingleObject::computePose(Object & inputObject , pcl::PointXYZ refCentroid) {
+void ApiFeatureExtractionSingleObject::computePose(Object & inputObject) {
 
   pcl::PointXYZ objectPose = inputObject.getCentroid();
   poseX = objectPose.x;

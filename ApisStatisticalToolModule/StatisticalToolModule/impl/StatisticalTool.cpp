@@ -8,22 +8,48 @@
 #include "StatisticalTool.hpp"
 
 #define DEBUG 0
-#define TESTFLAG 1
+#define TESTFLAG 0
 
 void StatisticalTool::trainGMM(vector<vector<float> > features, int nclusters, cv::Mat & means, cv::Mat & weights, vector<cv::Mat> & covs) {
 
-	 // ***********************************************************************
-	 // Initialize the feature matrix "FeatMat" as a cv::Mat object, empty
 
-	 cv::Mat FeatMat = cv::Mat::zeros ( features.size(), features[0].size(),  CV_64F );
+	// ************************************************************************
+	         // eliminate infinite valued features
 
-	 // Populate cv::Mat from a vector of vectors.
+		 vector<vector<float> > featuresNew;
+		 for ( int i = 0; i < features.size() ; i++ ) {
 
-	 for ( int i = 0; i < features.size() ; i++ ) {
-		 for ( int j = 0; j < features[0].size() ; j++ ) {
-			 FeatMat.at<double>(i, j) = (double) (features[i][j]);
+			vector<float> featuresNewRow;
+			bool addRow = true;
+			for ( int j = 0; j < features[0].size() ; j++ ) {
+				//if (FeatMat.at<double>(i, j) )
+				if ( IsFiniteNumber(features[i][j]) ) {
+					featuresNewRow.push_back( (features[i][j])) ;
+				}
+				else {
+					addRow = false;
+				}
+			 }
+			if (addRow == true ) {
+				featuresNew.push_back(featuresNewRow);
+			}
 		 }
-	 }
+
+	 	// ***********************************************************************
+		 // Initialize the feature matrix "FeatMat" as a cv::Mat object, empty
+
+		 cv::Mat FeatMat = cv::Mat::zeros ( featuresNew.size(), features[0].size(),  CV_64F );
+
+	         // ************************************************************************
+
+		 // Populate cv::Mat from a vector of vectors.
+
+		 for ( int i = 0; i < featuresNew.size() ; i++ ) {
+			 for ( int j = 0; j < featuresNew[0].size() ; j++ ) {
+				 FeatMat.at<double>(i, j) = (double) (featuresNew[i][j]);
+			 }
+		 }
+
 
 	 /*
 	// ***********************************************************************

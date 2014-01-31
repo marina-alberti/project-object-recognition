@@ -151,8 +151,8 @@ void ApiConvertSimulationDB::parseSceneJSON(boost::property_tree::ptree::value_t
         // OPTION for simulation data
         // *******************************************************************************************
 
-        vector<pcl::PointXYZ> bboxNew = addNoiseBoundingBox(boundingBoxVertices, 20);
-        (objectVector[countObject]).setBoundingBox(bboxNew);
+        // vector<pcl::PointXYZ> bboxNew = addNoiseBoundingBox(boundingBoxVertices, 20);
+        // (objectVector[countObject]).setBoundingBox(bboxNew);
 
         // *******************************************************************************************
 

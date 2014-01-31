@@ -38,24 +38,33 @@
 
 #define DEBUG 1
 
-/*
-http://stackoverflow.com/questions/3722704/c-read-numbers-from-file-and-store-in-vectors
-*/
+
 
 using namespace std;
 
 int main() {
 
-	string dir = "/home/marina/workspace_eclipse_scene_object_classification/data/data_more_objects/";
+	string dir = "/home/marina/workspace_eclipse_scene_object_classification/data/data_more_objects_folds/";
+	// // // // CrossValidation::computeLOOCrossValidationReal(dir);
+	CrossValidation::computeLOOCrossValidationRealFolds(dir);
 
-	string filename = "/home/marina/workspace_eclipse_scene_object_classification/data/data_simulation/simulation/after2m.json";
 
-	CrossValidation::computeLOOCrossValidationReal(dir);
-
+	//string filename = "/home/marina/workspace_eclipse_scene_object_classification/data/data_simulation/simulation/after2m.json";
 	// CrossValidation::computeLOOCrossValidationSimulation(filename);
 
 
+	// string dir = "/home/marina/catkin_strands_qsr_ws/src/strands_qsr/data/real-world/131107_All_Scenes_mod.json";
+	// string dir = "/home/marina/catkin_strands_qsr_ws/src/strands_qsr/data/real-world/131110_All_Scenes_mod.json";
+	// string dir = "/home/marina/catkin_strands_qsr_ws/src/strands_qsr/data/real-world/Two_Days_All_Scenes_mod.json";
+   //  string dir = "/home/marina/workspace_eclipse_scene_object_classification/data/real-world/Three_Days.json";
+    //string dir = "/home/marina/workspace_eclipse_scene_object_classification/data/real-world/Five_Days.json";
+
+
+    // // // CrossValidation::computeLOOCrossValidationRealWorld(dir);
+	//CrossValidation::computeLOOCrossValidationRealWorldFolds(dir);
+
 	return 0;
+
 }
 
 

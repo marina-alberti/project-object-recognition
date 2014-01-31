@@ -7,7 +7,7 @@
 
 #include "Training.hpp"
 
-#define TESTFLAG 1
+#define TESTFLAG 0
 #define DEBUG 0
 
 Training::Training(int in) {
@@ -17,7 +17,7 @@ Training::Training(int in) {
 // Calls the learning method (SingleObject)
 void Training::learnGMMSingleObjectFeature(vector<vector<vector<float> > > FMSingleObject, int nclusters, int normalization) {
 
-	int minSamples = 5;
+	int minSamples = 4;
 
 	int fsize = (FMSingleObject[0][0]).size();        // TODO: check
 
@@ -184,6 +184,12 @@ void Training::learnGMMObjectPairFeature(vector<vector<vector<vector<float> > > 
 
 			if (TESTFLAG) {
 			cout << "size of the feature matrix is: " << normalizedFeatMat.size() << endl;
+			for (int m = 0; m < normalizedFeatMat.size(); m++) {
+				for (int n = 0; n < normalizedFeatMat.at(m).size(); n++) {
+					cout << normalizedFeatMat.at(m).at(n) << "    " ;
+				}
+				cout << endl;
+			}
 			}
 
 			if (normalizedFeatMat.size() > minSamples) {

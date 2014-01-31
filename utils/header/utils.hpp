@@ -35,8 +35,15 @@ int computeMaximum(vector<double> in);
 int computeEqualPosition(vector<int> in, int test);
 double computeMaximumValue(vector<double> in);
 int computeMaximumValue(vector<int> in);
+double computeAverage(vector<double> in);
+double computeAverage(vector<int> in);
 
 int convertStringToIntCategoryLabel(string stringLabel);
 vector<int> convertStringToIntCategoryLabelVector(vector<string> stringLabels);
+
+string convertInt(int number);
+bool IsFiniteNumber(float x);
+
+
 
 #endif /* HEADER_HPP_ */

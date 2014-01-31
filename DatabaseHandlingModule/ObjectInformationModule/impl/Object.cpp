@@ -28,7 +28,10 @@ void Object::setObjectName(string inputName) {
 
   objectName = inputName;
 
+  //int convertStringToIntCategoryLabel(string inputName)
+
   // set "actualObjectID" and "categoryName" fields based on the name
+
 
   const char * nameChar = inputName.c_str();
   if ( strcmp(nameChar, "Monitor") == 0 || strcmp(nameChar, "monitor") == 0 || strcmp(nameChar, "Screen") == 0 || strcmp(nameChar, "Monitor2") == 0) {
@@ -52,11 +55,11 @@ void Object::setObjectName(string inputName) {
     categoryName = "Lamp";
   }
   if (strcmp(nameChar, "Laptop") == 0 || strcmp(nameChar, "laptop") == 0) {
-    actualObjectID = 5;
+    actualObjectID = -1;
     categoryName = "Laptop";
   }
   if (strcmp(nameChar, "Pen") == 0 || strcmp(nameChar, "Pen2") == 0 || strcmp(nameChar, "Pen3") == 0 || strcmp(nameChar, "pen") == 0 || strcmp(nameChar, "Pencil") == 0) {
-    actualObjectID = 6;
+    actualObjectID = 5;
     categoryName = "Pencil";
   }
 
@@ -102,6 +105,7 @@ void Object::setObjectName(string inputName) {
     actualObjectID = 16;
     categoryName = "Telephone";
   }
+
 }
 
 void Object::setInstanceName(string inputName) {
@@ -109,21 +113,16 @@ void Object::setInstanceName(string inputName) {
 }
 
 
-/*
- * TODO: change for the new dataset and use the "utils"
- * (or create a new similar) function
- * to convert from string category label into
- * int category label::
- *
- * actualObjectID = convertStringToIntCategoryLabel(inputName);
- *
- */
+
 void Object::setCategoryName(string inputName) {
 
   categoryName = inputName;
+  actualObjectID = convertStringToIntCategoryLabel(inputName);
 
   // Sets also the numerical object category identifiers,
   // based on the category string identifiers.
+
+  /*
 
   const char * nameChar = inputName.c_str();
 
@@ -179,6 +178,7 @@ void Object::setCategoryName(string inputName) {
   if (strcmp(nameChar, "Telephone") == 0) {
     actualObjectID = 16;
   }
+  */
 
 }
 

@@ -114,7 +114,13 @@ void ApiFeatureExtractionObjectPair::computeSizeDifference(Object & refObject, O
   float dim3r = pcl::euclideanDistance(referenceBoundingBox.points[4], referenceBoundingBox.points[0]);
   float sizeReference = (dim1r * dim2r * dim3r);
 
-  sizeDifference = sizeTarget / sizeReference;
+  if (sizeReference != 0) {
+	  sizeDifference = sizeTarget / sizeReference;
+  }
+  else {
+	  // cout << "Error: one volume is zero! " << endl;
+	  sizeDifference = 30;
+  }
 
   if (DEBUG)  {
     cout << "The difference is SIZE between the 2 objects is : " << sizeDifference << endl;

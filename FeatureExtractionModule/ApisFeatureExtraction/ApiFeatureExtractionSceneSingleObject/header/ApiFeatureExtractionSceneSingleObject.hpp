@@ -34,6 +34,7 @@ private:
 public:
 
 static void extract(SceneInformation &, SceneSingleObjectFeature & );
+static void extractNoReference(SceneInformation & scene, SceneSingleObjectFeature & out);
 
 };
 

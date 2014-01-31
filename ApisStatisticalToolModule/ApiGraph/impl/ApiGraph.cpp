@@ -63,6 +63,7 @@ void ApiGraph::findAllPathsUtil(int nobjects, int objectidIndex, int categoryInd
  * from object to object and can be of different number for different objects.
  */
 void ApiGraph::findAllPathsShortlisted() {
+
 	int nobjects = votingTable.size();
 	path mypath;
 
@@ -93,6 +94,7 @@ void ApiGraph::findAllPathsShortlistedUtil(int nobjects, int objectidIndex, int 
 	}
 	else {
 		allPaths.push_back(mypath);
+
 	}
 
 }

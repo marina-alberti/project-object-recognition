@@ -28,6 +28,7 @@
 #include "ConfusionMatrix.hpp"
 #include "ApiConvertionResultsTestConfusionMatrix.hpp"
 #include "Evaluation.hpp"
+#include "time.h"
 
 
 
@@ -41,7 +42,14 @@ private:
 public:
 
 	static void computeLOOCrossValidationReal(string);
+
+	static void computeLOOCrossValidationRealFolds(string);
 	static void computeLOOCrossValidationSimulation(string dir);
+	static void computeLOOCrossValidationRealWorld(string dir);
+
+	static void do_crossValidation(vector<int> trainingFolderIds, int testFolderId) ;
+	static void computeLOOCrossValidationRealWorldFolds(string dir);
+
 
 };
 

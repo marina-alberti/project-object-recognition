@@ -37,7 +37,7 @@ private:
 	float sizeProjectedY;
 	float sizeProjectedZ;
 
-	void computePose(Object & , pcl::PointXYZ );
+	void computePose(Object & );
 	void computeAngle2dCentroid(Object & , pcl::PointXYZ );
 	void computeAngle2d(Object & );
 
@@ -52,6 +52,8 @@ private:
 public:
 
 	void extractFeatures(Object & , pcl::PointXYZ , SingleObjectFeature &);
+	void extractFeaturesNoReference(Object & inputObject ,SingleObjectFeature & out);
+
 
 };
 

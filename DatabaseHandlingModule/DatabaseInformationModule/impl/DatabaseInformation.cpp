@@ -8,7 +8,7 @@
 #include "DatabaseInformation.hpp"
 
 #define DEBUG 0
-#define TESTFLAG 0
+#define TESTFLAG 1
 
 DatabaseInformation::DatabaseInformation(int in) {
   numberOfScenes = 0;
@@ -58,6 +58,20 @@ void DatabaseInformation::loadAnnotations_Simulation(string fileAnnotations) {
   if (TESTFLAG)  { cout << "The JSON file name is: " << fileAnnotations << endl; }
 
   ApiConvertSimulationDB::parseFileJSON(fileAnnotations, sceneList);   // pass by reference the scene list
+
+  numberOfScenes = sceneList.size();
+
+  if (DEBUG)  { cout << "The number of scenes in the database is : " << numberOfScenes << endl; }
+
+}
+
+
+
+void DatabaseInformation::loadAnnotations_RealWorld(string fileAnnotations) {
+
+  if (TESTFLAG)  { cout << "The JSON file name is: " << fileAnnotations << endl; }
+
+  ApiConvertRealWorldDB::parseFileJSON(fileAnnotations, sceneList);   // pass by reference the scene list
 
   numberOfScenes = sceneList.size();
 
