@@ -23,7 +23,7 @@ void StatisticalTool::trainGMM(vector<vector<float> > features, int nclusters, c
 			bool addRow = true;
 			for ( int j = 0; j < features[0].size() ; j++ ) {
 				//if (FeatMat.at<double>(i, j) )
-				if ( IsFiniteNumber(features[i][j]) ) {
+				if ( IsFiniteNumber(features[i][j])   && ( abs(features[i][j]) < 10000 )  ) {
 					featuresNewRow.push_back( (features[i][j])) ;
 				}
 				else {
@@ -78,6 +78,7 @@ void StatisticalTool::trainGMM(vector<vector<float> > features, int nclusters, c
 	 cv::EM em_model(nclusters);
 	 if (DEBUG) {
 		 std::cout << "Training the EM model." << std::endl;
+		 cout << FeatMat << endl;
 	 }
 	 em_model.train ( FeatMat );
 

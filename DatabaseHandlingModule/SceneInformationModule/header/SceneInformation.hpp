@@ -35,6 +35,7 @@ private:
 	float referenceLength;
 	float referenceWidth;
 	string sceneFold;
+	string dateString;
 
 public:
 
@@ -42,13 +43,15 @@ public:
 
 	void addObject(Object &);
 
+	// set functions
 	void setType(string);
 	void setReferenceLength(float);
 	void setReferenceWidth(float);
 	void setReferenceCentroid();
-
 	void setSceneFold(string i) {sceneFold = i;}
+	void setSceneDateString(string i) {dateString = i; }
 
+	// get functions
 	vector<Object> getObjectList();
 	string getType();
 	float getReferenceLength();
@@ -56,6 +59,7 @@ public:
 	pcl::PointXYZ getReferenceCentroid();
 	int getNumberOfObjects() { return numberOfObjects; }
 	string getSceneFold() {return sceneFold; }
+	string getSceneDateString() { return dateString; }
 
 	void showSceneInformation();
 

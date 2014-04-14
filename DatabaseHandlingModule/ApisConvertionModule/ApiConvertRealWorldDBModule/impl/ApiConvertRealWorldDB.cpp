@@ -57,8 +57,6 @@ void ApiConvertRealWorldDB::parseSceneJSON(boost::property_tree::ptree::value_ty
 
   BOOST_FOREACH (boost::property_tree::ptree::value_type& sceneField, sceneRoot.second) {
 
-
-
 	  // reading the scene if field indicating the desk:  "scene_id": "Puren_Table_101113_Eve"
 	  if (strcmp(sceneField.first.c_str(), "scene_id") == 0) {
 
@@ -70,12 +68,19 @@ void ApiConvertRealWorldDB::parseSceneJSON(boost::property_tree::ptree::value_ty
 	 		string sceneTypeFull = sceneField.second.get_value<std::string>();
 	 		std::size_t found = sceneTypeFull.find("_");
 	 		std::string sceneType = sceneTypeFull.substr (0,found);
-
 	 		currentScene.setSceneFold(sceneType);
-	 		cout << "And the obtained from scene is:: " << currentScene.getSceneFold() << endl;
+	 		if (TESTFLAG) { cout << "And the obtained from scene is:: " << currentScene.getSceneFold() << endl; }
+
+
+	 		// find the substring which is in between the SECOND and THIRD "_" underscore character !! TODO
+	 		std::size_t found2 = sceneTypeFull.find("_", found + 1);
+	 		std::size_t found3 = sceneTypeFull.find("_", found2 + 1);
+	 		std::string dateString = sceneTypeFull.substr (found2 + 1,6);
+	 		currentScene.setSceneDateString(dateString);
+	 		if (TESTFLAG) { cout << endl << endl << "The date is : " << dateString << endl; }
+
+
 	  }
-
-
 
     // "type" field: contains the object category of each object and the "name" of each object
     if (strcmp(sceneField.first.c_str(), "type") == 0) {

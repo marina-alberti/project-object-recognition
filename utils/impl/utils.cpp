@@ -217,10 +217,10 @@ int convertStringToIntCategoryLabel(string inputName) {
 		else if (strcmp(nameChar,"Mouse")== 0 ) {
 			intLabel = 2;
 		}
-		else if (strcmp(nameChar,"Papers")== 0 ) {
+		else if (strcmp(nameChar,"Mug")== 0 ) {
 			intLabel = 3;
 		}
-		else if (strcmp(nameChar, "Book")== 0 ) {
+		else if (strcmp(nameChar, "Lamp")== 0 ) {
 			intLabel = 4;
 		}
 		else if (strcmp(nameChar, "Notebook")== 0 ) {
@@ -229,28 +229,28 @@ int convertStringToIntCategoryLabel(string inputName) {
 		else if (strcmp(nameChar, "Laptop")== 0 ) {
 			intLabel = 6;
 		}
-		else if (strcmp(nameChar,"Mobile")== 0 ) {
+		else if (strcmp(nameChar,"Papers")== 0 ) {
 			intLabel = 7;
 		}
-		else if (strcmp(nameChar, "Mug")== 0 ) {
+		else if (strcmp(nameChar, "Book")== 0 ) {
 			intLabel = 8;
 		}
-		else if (strcmp(nameChar,"Glass")== 0 ) {
+		else if (strcmp(nameChar,"Mobile")== 0 ) {
 			intLabel = 9;
 		}
 		//else if (strcmp(nameChar, "Flask")== 0 ) {
 			//intLabel = 10;
 		//}
-		else if (strcmp(nameChar, "Jug")== 0 ) {
+		else if (strcmp(nameChar, "Glass")== 0 ) {
 			intLabel = 10;
 		}
-		else if (strcmp(nameChar, "Lamp")== 0 ) {
+		else if (strcmp(nameChar, "Jug")== 0 ) {
 			intLabel = 11;
 		}
-		else if (strcmp(nameChar, "Bottle")== 0 ) {
+		else if (strcmp(nameChar, "Headphones")== 0 ) {
 			intLabel = 12;
 		}
-		else if (strcmp(nameChar, "Headphones")== 0 ) {
+		else if (strcmp(nameChar, "Bottle")== 0 ) {
 			intLabel = 13;
 		}
 		else {

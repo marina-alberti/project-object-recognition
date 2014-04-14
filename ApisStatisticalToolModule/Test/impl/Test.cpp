@@ -7,7 +7,7 @@
 
 #include "Test.hpp"
 
-#define TESTFLAG 1
+#define TESTFLAG 0
 
 
 path Test::predictObjectClassesOnlySOF(ArrangeFeatureTestScene & testfeatures, int normalization) {
@@ -1381,7 +1381,16 @@ double Test::computeScoreCliqueVotingStrategy(ArrangeFeatureTestScene & testfeat
 
 				// // Score of current pair: product of scores of:: likelihood_SOF_ref_catref, likelihood_SOF_target_cattarget,
                 // // likelihood_OPF_ref_target_catref_cattarget
+
+
+
+				// // // // option 1: combination SOF and OPF (b, c)
 				currentPairScore = refsofscore * refobjectCategoryFreq * targetsofscore * targetobjectCategoryFreq * opfscore * pairObjectCategoryFreq;
+
+				// // // option 2: only SOF (no OPF) (a)
+				// currentPairScore = refsofscore * refobjectCategoryFreq * targetsofscore * targetobjectCategoryFreq;
+
+
 
 				totalPathScore +=  currentPairScore;
 

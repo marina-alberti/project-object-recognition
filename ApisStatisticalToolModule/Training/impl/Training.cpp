@@ -7,8 +7,8 @@
 
 #include "Training.hpp"
 
-#define TESTFLAG 0
-#define DEBUG 0
+#define TESTFLAG 1
+#define DEBUG 1
 
 Training::Training(int in) {
 	numberOfCategories = in;
@@ -17,9 +17,9 @@ Training::Training(int in) {
 // Calls the learning method (SingleObject)
 void Training::learnGMMSingleObjectFeature(vector<vector<vector<float> > > FMSingleObject, int nclusters, int normalization) {
 
-	int minSamples = 4;
+	int minSamples = 5;
 
-	int fsize = (FMSingleObject[0][0]).size();        // TODO: check
+	// int fsize = (FMSingleObject[0][0]).size();        // TODO: check
 
     // for each considered object category
 	for ( int i = 0 ; i < FMSingleObject.size(); i++ ) {
@@ -115,7 +115,7 @@ void Training::learnGMMObjectPairFeature(vector<vector<vector<vector<float> > > 
 
 	int minSamples = 5;
 
-	int fsize = (FMPairObject[0][0][0]).size();        // TODO: check
+	// int fsize = (FMPairObject[0][0][0]).size();        // TODO: check
 
 	// for each considered object class
 	for ( int i = 0 ; i < FMPairObject.size(); i++ ) {
@@ -184,17 +184,28 @@ void Training::learnGMMObjectPairFeature(vector<vector<vector<vector<float> > > 
 
 			if (TESTFLAG) {
 			cout << "size of the feature matrix is: " << normalizedFeatMat.size() << endl;
+			/*
 			for (int m = 0; m < normalizedFeatMat.size(); m++) {
 				for (int n = 0; n < normalizedFeatMat.at(m).size(); n++) {
 					cout << normalizedFeatMat.at(m).at(n) << "    " ;
 				}
 				cout << endl;
 			}
+			*/
 			}
+
 
 			if (normalizedFeatMat.size() > minSamples) {
 
+				if (TESTFLAG) {
+					cout << "Before calling trainGMM" << endl;
+				}
+
 				StatisticalTool::trainGMM(normalizedFeatMat, nclusters, means, weights, covs);
+
+				if (TESTFLAG) {
+					cout << "After calling trainGMM" << endl;
+				}
 			}
 
 			// cout << "Before push_back" << endl;

@@ -34,7 +34,7 @@
 #include "ApiStatisticsDatabase.hpp"
 
 
-#define DEBUG 1
+#define DEBUG 0
 
 /*
 http://stackoverflow.com/questions/3722704/c-read-numbers-from-file-and-store-in-vectors
@@ -89,15 +89,19 @@ int main() {
 	cout << "size of feature matrix dim 2 is: " <<  FMSingleObject.at(0).size() << endl;
 	cout << "size of feature matrix dim 3 is: " << FMSingleObject.at(0).at(0).size() << endl;
 
-	ArrangeFeatureTraining::printFeatureMatrixSingleObject(FMSingleObject);
-	ArrangeFeatureTraining::printFeatureMatrixObjectPair(FMObjectPair);
+	//ArrangeFeatureTraining::printFeatureMatrixSingleObject(FMSingleObject);
+	//ArrangeFeatureTraining::printFeatureMatrixObjectPair(FMObjectPair);
 
 	// Learning
 
 	int nclusters = 2;
 	int normalizationOption = 0;
 	Training doTraining;
+
+	cout << "Learn GMM SOF " << endl;
 	doTraining.learnGMMSingleObjectFeature(FMSingleObject, nclusters, normalizationOption);
+
+	cout << "Learn GMM OPF"  << endl;
 	doTraining.learnGMMObjectPairFeature(FMObjectPair, nclusters, normalizationOption);
 
 	string folder = "params";
@@ -111,6 +115,7 @@ int main() {
 	ModelTrainedIO::storefrequencies(frequenciesSingleObject, frequenciesObjectPair, folder);
 
 
+	cout << endl << "Start Test" << endl << endl;
 	// ******************************************************************************************************
 	// Test
 
@@ -127,7 +132,7 @@ int main() {
 		// // feature extraction
 		SceneSingleObjectFeature sceneSof;
 		SceneObjectPairFeature sceneOpf;
-		ApiFeatureExtractionSceneSingleObject::extract(testScene, sceneSof);
+		ApiFeatureExtractionSceneSingleObject::extractNoReference(testScene, sceneSof);
 		ApiFeatureExtractionSceneObjectPair::extract(testScene, sceneOpf);
 
 		// // Arrange features of test scene
@@ -156,7 +161,10 @@ int main() {
 		}
 
 
+		cout << "Before running inference" << endl;
 		testingScene.predictObjectClassesOnlySOF(arrageFeaturesTest, normalizationOption);
+
+		cout << "After running predictObjectClassesOnlySOF" << endl;
 
 		vector<vector<double> > votingTable;
 

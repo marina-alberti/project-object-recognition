@@ -53,7 +53,7 @@ void ApiFeatureExtractionSingleObject::extractFeaturesNoReference(Object & input
 	out.setInstanceID(instanceID);
 	out.setInstanceName(instanceName);
 
-
+	// // // first set of features , table - object relations
 
 	computePose(inputObject);
 	out.setPose(poseX, poseY, poseZ);
@@ -72,17 +72,13 @@ void ApiFeatureExtractionSingleObject::extractFeaturesNoReference(Object & input
 	out.setSizeProjectedY(sizeProjectedY);
 
 
-
-
-	computeVolumeSize(inputObject);
-	out.setVolume(volumeSize);
+	// // // set of features of the individual object
 
 	computeSizeProjectedZ(inputObject);
 	out.setSizeProjectedZ(sizeProjectedZ);
 
-
-
-
+	computeVolumeSize(inputObject);
+	out.setVolume(volumeSize);
 
 }
 

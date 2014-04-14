@@ -33,6 +33,7 @@ void ApiFeatureExtractionObjectPair::extractFeatures(Object & refObject, Object 
 	computeSizeDifference(refObject, targetObject);
 	computeVerticalHeightDifference(refObject, targetObject);
 
+
 	out.setEuclideanDistance(EuclideanDistance);
 	out.setEuclideanDistance2d(EuclideanDistance2d);
 	out.setOrientation2d(orientation2d);

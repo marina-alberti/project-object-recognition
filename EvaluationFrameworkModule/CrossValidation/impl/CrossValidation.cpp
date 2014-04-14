@@ -10,14 +10,14 @@
 
 #define TESTFLAG 0
 #define DEBUG 0
-#define NUMBEROFCATEGORIES 6 // // 6 14
+#define NUMBEROFCATEGORIES 14 // // 6 14
 
 
 void CrossValidation::computeLOOCrossValidationReal(string dir) {
 
 	// string dir = "/home/marina/workspace_eclipse_scene_object_classification/data/data_more_objects/";
 
-	int optionTestFunction = 2;
+	int optionTestFunction = 0;
 
 	vector<string> listXMLfiles =  storeFileNames(dir);
 	DatabaseInformation db(NUMBEROFCATEGORIES);
@@ -76,7 +76,9 @@ void CrossValidation::computeLOOCrossValidationReal(string dir) {
 		int nclusters = 2;
 		int normalizationOption = 0;
 		Training doTraining;
+		cout << "Learn GMM single object features" << endl;
 		doTraining.learnGMMSingleObjectFeature(FMSingleObject, nclusters, normalizationOption);
+		cout << "Learn GMM object pair features" << endl;
 		doTraining.learnGMMObjectPairFeature(FMObjectPair, nclusters, normalizationOption);
 
 		// compute object frequencies and co-occurrence frequency on training database
@@ -257,7 +259,7 @@ void CrossValidation::computeLOOCrossValidationReal(string dir) {
 
 void CrossValidation::computeLOOCrossValidationRealFolds(string dir) {
 
-	int optionTestFunction = 2;
+	int optionTestFunction = 0;    // // // // // 0: SOF, 2:Exhaustive, 5:optimization
 	ConfusionMatrix crossValidationCMatrix;
 	vector<double> timesTesting;
 	vector<int> numberOfObjectsPerScene;
@@ -313,7 +315,6 @@ void CrossValidation::computeLOOCrossValidationRealFolds(string dir) {
 		// **********************************************************************
 		// Prints files to check
 
-
 		for (int j = 0; j < listXMLfilesTest.size(); j ++) {
 			cout << "test    "<< listXMLfilesTest.at(j) << endl;
 		}
@@ -347,6 +348,8 @@ void CrossValidation::computeLOOCrossValidationRealFolds(string dir) {
 
 		// arrange the features
 
+		cout << "Arranging the features" << endl;
+
 		vector<vector<vector<float> > > FMSingleObject;
 		ArrangeFeatureTraining::setFeatureMatrixSingleObject(dbSof, FMSingleObject);
 		vector<vector<vector<vector<float> > > > FMObjectPair;
@@ -355,11 +358,19 @@ void CrossValidation::computeLOOCrossValidationRealFolds(string dir) {
 		// ArrangeFeatureTraining::printFeatureMatrixSingleObject(FMSingleObject);
 		// ArrangeFeatureTraining::printFeatureMatrixObjectPair(FMObjectPair);
 
+		cout << "Learning" << endl;
+
 		// Learning
 		int nclusters = 2;
 		int normalizationOption = 0;
 		Training doTraining;
+
+		cout << "Learn single object GMM" << endl;
+
 		doTraining.learnGMMSingleObjectFeature(FMSingleObject, nclusters, normalizationOption);
+
+		cout << "Learn object pair GMM" << endl;
+
 		doTraining.learnGMMObjectPairFeature(FMObjectPair, nclusters, normalizationOption);
 
 		// compute object frequencies and co-occurrence frequency on training database
@@ -405,7 +416,7 @@ void CrossValidation::computeLOOCrossValidationRealFolds(string dir) {
 			}
 
 			ApiGraph mygraph(objectids, categoryList);
-			mygraph.findAllPaths();
+			//mygraph.findAllPaths();   //////////// huge computational cost!!!
 			// mygraph.printAllPaths();
 			vector<path> allPaths = mygraph.getAllPaths();
 
@@ -511,6 +522,8 @@ void CrossValidation::computeLOOCrossValidationRealFolds(string dir) {
 		//evaluate->evaluatePerformance();
 
 		crossValidationCMatrix.sumConfusionMatrix(totalCMatrix);
+		crossValidationCMatrix.printConfusionMatrix();
+
 
 
 
@@ -1262,11 +1275,6 @@ void CrossValidation::computeLOOCrossValidationRealWorld(string dir) {
 		cout << "Number of Objects is:: " << numberOfObjectsPerScene.at(l) << endl;
 		cout << "Time elapsed testing is:  " << timesTesting.at(l) << endl;
 	}
-
-
-
-
-
 }
 
 
@@ -1274,26 +1282,45 @@ void CrossValidation::computeLOOCrossValidationRealWorld(string dir) {
 
 void CrossValidation::computeLOOCrossValidationRealWorldFolds(string dir) {
 
-	int optionTestFunction = 5;
+	// // 5: Only greedy optimization search with a start from the best node indicated by SOF likelihood
+	int optionTestFunction = 0;
 	ConfusionMatrix crossValidationCMatrix;
-
-	// // the number of cross validation folds is equal to the number of files/scenes
 	vector<double> timesTesting;
 	vector<int> numberOfObjectsPerScene;
 
 	DatabaseInformation db(NUMBEROFCATEGORIES);
 	db.loadAnnotations_RealWorld(dir);
-
 	vector<SceneInformation> allScenes = db.getSceneList();
-
-	cout << "The total number of scenes is:: "  << allScenes.size() << endl << endl;
+	cout << "CrossValidation:: The total number of scenes is:: "  << allScenes.size() << endl << endl;
 
 	 const char* sceneFoldNamesChar[] = {"Francisco", "Kaiyu", "Florian", "Puren", "Ali", "Rares", "Marina", "Akshaya", "Miro", "Yasemin", "Hossein", "Nils", "Carl", "Yuquan", "Petter", "Michele", "Oscar", "Magnus", "David", "Rasmus"};
 	 std::vector<std::string> sceneFoldNames(sceneFoldNamesChar, sceneFoldNamesChar + 20);
 	 int numberOfFolds =  20;
 
-	// // For each cross validation fold
 
+	 // ****************************************************************************************************
+	 // // The vector of selected dates::
+	 const char* selectedDatesChar[] = {"131023", "131024", "131028", "131029", "131030", "131031", "131101", "131106", "131107", "131110"};
+	 std::vector<std::string> selectedDates(selectedDatesChar, selectedDatesChar + 10);
+
+
+	 // // Selects only the scenes of the set of selected dates
+	 vector<SceneInformation> allScenesSelectedDates;
+	 for (int i = 0; i < allScenes.size(); i++) {
+			SceneInformation currentSceneInformation = allScenes.at(i);
+			const char* currentSceneDate = (currentSceneInformation.getSceneDateString()).c_str();
+
+			if ( (strcmp(currentSceneDate, selectedDates.at(0).c_str()) == 0) ||  (strcmp(currentSceneDate, selectedDates.at(1).c_str()) == 0) || (strcmp(currentSceneDate, selectedDates.at(2).c_str()) == 0) || (strcmp(currentSceneDate, selectedDates.at(3).c_str()) == 0) || (strcmp(currentSceneDate, selectedDates.at(4).c_str()) == 0) || (strcmp(currentSceneDate, selectedDates.at(5).c_str()) == 0) || (strcmp(currentSceneDate, selectedDates.at(6).c_str()) == 0) || (strcmp(currentSceneDate, selectedDates.at(7).c_str()) == 0) || (strcmp(currentSceneDate, selectedDates.at(8).c_str()) == 0) || (strcmp(currentSceneDate, selectedDates.at(9).c_str()) == 0) ) {
+				allScenesSelectedDates.push_back(currentSceneInformation);
+			}
+	 }
+	cout << "CrossValidation:: The total number of SELECTED DATE scenes is:: "  << allScenesSelectedDates.size() << endl << endl;
+
+	//exit(1);
+	 // ****************************************************************************************************
+
+
+	// // For each cross validation fold
 	for (int ifold = 0; ifold < numberOfFolds; ifold++) {   //// numberOfFolds
 
 		cout << sceneFoldNames.at(ifold) << endl;
@@ -1301,37 +1328,31 @@ void CrossValidation::computeLOOCrossValidationRealWorldFolds(string dir) {
 		vector<SceneInformation> trainingScenes;
 		vector<SceneInformation> testScenes;
 
-		/*
-		testScenes.push_back(allScenes.at(ifold));
-		for (int i = 0 ; i < numberOfFolds; i++) {
-			if (i != ifold) {
-				trainingScenes.push_back(allScenes.at(i));
-			}
-		}
-		*/
 
+		// // Creates the training dataset and the group of test scene for current cross validation fold
 		string currentSceneFoldTestName = sceneFoldNames.at(ifold);
-		for (int i = 0; i < allScenes.size(); i++) {
 
-			SceneInformation currentSceneInformation = allScenes.at(i);
+		// for each of the scenes
+		for (int i = 0; i < allScenesSelectedDates.size(); i++) {
+
+			SceneInformation currentSceneInformation = allScenesSelectedDates.at(i);
 			if (strcmp( (currentSceneInformation.getSceneFold()).c_str(), (currentSceneFoldTestName).c_str() ) == 0) {
 				testScenes.push_back(currentSceneInformation);
-				//cout << i << "  THIS is a test scene:: " << currentSceneInformation.getSceneFold() << endl;
 			}
 			else {
 				trainingScenes.push_back(currentSceneInformation);
-				//cout << i << "  THIS is a training scene:: " << currentSceneInformation.getSceneFold() << endl;
-
 			}
 		}
 
 		DatabaseInformation trainingDB(trainingScenes, NUMBEROFCATEGORIES);
 
-		cout << "the size of the database is: " << trainingDB.getNumberOfScenes() << endl;
+		if (TESTFLAG) {
+			cout << "the size of the database is: " << trainingDB.getNumberOfScenes() << endl;
+		}
 		// trainingDB.printSceneInformation();
 
 
-		// // Feature extraction
+		// // Feature extraction from training dataset
 
 		DatabaseSingleObjectFeature dbSof;
 		ApiFeatureExtractionDatabaseSingleObject::extract(trainingDB, dbSof);
@@ -1339,18 +1360,30 @@ void CrossValidation::computeLOOCrossValidationRealWorldFolds(string dir) {
 		ApiFeatureExtractionDatabaseObjectPair::extract(trainingDB, dbOpf);
 
 
-		// // Arrange the features
+		// // Arrange the features from training dataset
 
 		vector<vector<vector<float> > > FMSingleObject;
 		ArrangeFeatureTraining::setFeatureMatrixSingleObject(dbSof, FMSingleObject);
 		vector<vector<vector<vector<float> > > > FMObjectPair;
 		ArrangeFeatureTraining::setFeatureMatrixObjectPair(dbOpf, FMObjectPair);
 
+		// // Prints features from training dataset
+
 		// ArrangeFeatureTraining::printFeatureMatrixSingleObject(FMSingleObject);
 		// ArrangeFeatureTraining::printFeatureMatrixObjectPair(FMObjectPair);
 
+		//string fileNameFeatureSO = "/home/marina/Testing_PCA_Features_Matlab/featuresSO.txt";
+		//string fileNameFeatuerOP = "/home/marina/Testing_PCA_Features_Matlab/featuresOP.txt";
+		string fileNameFeatureSO = "/home/marina/API_Scene_Structure_from_DB_Matlab/featuresSO.txt";
+		string fileNameFeatureOP = "/home/marina/API_Scene_Structure_from_DB_Matlab/featuresOP.txt";
 
-		// // Learning
+		//ArrangeFeatureTraining::printFeatureSingleObjectToFile(FMSingleObject, fileNameFeatureSO);
+		//ArrangeFeatureTraining::printFeatureObjectPairToFile(FMObjectPair, fileNameFeatureOP);
+
+		//break;    // // TODO: remove!
+
+
+		// // Learning (from training dataset)
 
 		int nclusters = 2;
 		int normalizationOption = 0;
@@ -1359,9 +1392,7 @@ void CrossValidation::computeLOOCrossValidationRealWorldFolds(string dir) {
 
 		doTraining.learnGMMObjectPairFeature(FMObjectPair, nclusters, normalizationOption);
 
-		// compute object frequencies and co-occurrence frequency on training database
-
-		//cout << "cross 1" << endl;
+		// // Computes object frequencies and co-occurrence frequency on training database
 
 		vector<double> frequenciesSingleObject = ApiStatisticsDatabase::computeFrequenciesSingleObject(trainingDB);
 		vector<vector<double> > frequenciesObjectPair = ApiStatisticsDatabase::computeFrequenciesObjectPair(trainingDB);
@@ -1372,13 +1403,13 @@ void CrossValidation::computeLOOCrossValidationRealWorldFolds(string dir) {
 		ModelTrainedIO::storeTrainingToFile(doTraining, storingFolder);
 		ModelTrainedIO::storefrequencies(frequenciesSingleObject, frequenciesObjectPair, storingFolder);
 
+
 		// // Test
 
 		ConfusionMatrix totalCMatrix;
 
 		// for each test scene among the test scenes
 		for (int i = 0; i < testScenes.size(); i++) {
-
 
 			SceneInformation testScene = testScenes.at(i);
 
@@ -1388,17 +1419,9 @@ void CrossValidation::computeLOOCrossValidationRealWorldFolds(string dir) {
 			int numberOfObject = testScene.getNumberOfObjects();
 			numberOfObjectsPerScene.push_back(numberOfObject);
 
-			// // ADDED to consider only test scenes having limited number of unknown test objects
-			/*
-			if (numberOfObject > 6) {
-				break;
-			}
-			*/
-
-			for (int k = 0; k < NUMBEROFCATEGORIES; k++) { // TODO: changeback
+			for (int k = 0; k < NUMBEROFCATEGORIES; k++) {
 				categoryList.push_back(k);
 			}
-
 
 			ApiGraph mygraph(objectids, categoryList);
 			// mygraph.findAllPaths();
@@ -1527,6 +1550,8 @@ void CrossValidation::computeLOOCrossValidationRealWorldFolds(string dir) {
 		//evaluate->evaluatePerformance();
 
 		crossValidationCMatrix.sumConfusionMatrix(totalCMatrix);
+		crossValidationCMatrix.printConfusionMatrix();
+
 
 	}
 

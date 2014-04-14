@@ -72,6 +72,11 @@ public:
 
 	  static void printFeatureMatrixObjectPair(vector<vector<vector<vector<float> > > > & FMPairObject);
 
+	  static void printFeatureSingleObjectToFile(vector<vector<vector<float> > > & FMSingleObject, string);
+
+	  static void printFeatureObjectPairToFile(vector<vector<vector<vector<float> > > > & FMPairObject, string);
+
+
 };
 
 

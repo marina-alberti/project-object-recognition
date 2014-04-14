@@ -121,16 +121,13 @@ void ArrangeFeatureTraining::printFeatureMatrixSingleObject(vector<vector<vector
 
 			for (int z = 0; z < FMSingleObject.at(i).at(j).size(); z++) {
 
-				cout << FMSingleObject.at(i).at(j).at(z) << "   " ;
+				cout << FMSingleObject.at(i).at(j).at(z) << " " ;
 			}
 			cout << endl;
 
 		}
-		//cout << endl << endl << endl;
 	}
-
 }
-
 
 void ArrangeFeatureTraining::printFeatureMatrixObjectPair(vector<vector<vector<vector<float> > > > & FMPairObject) {
 
@@ -138,18 +135,69 @@ void ArrangeFeatureTraining::printFeatureMatrixObjectPair(vector<vector<vector<v
 
 		for (int i2 = 0; i2 < FMPairObject.at(i).size(); i2++) {
 
-			cout << "Object categories: " << i << "   and " << i2 << endl;
+			//cout << "Object categories: " << i << "   and " << i2 << endl;
 			for (int j = 0; j < FMPairObject.at(i).at(i2).size(); j++) {
 
 				for (int z = 0; z < FMPairObject.at(i).at(i2).at(j).size(); z++) {
 
-					cout << FMPairObject.at(i).at(i2).at(j).at(z) << "   " ;
+					cout << FMPairObject.at(i).at(i2).at(j).at(z) << " " ;
 				}
 				cout << endl;
 			}
-			cout << endl << endl << endl;
 		}
 	}
 }
 
+void ArrangeFeatureTraining::printFeatureSingleObjectToFile(vector<vector<vector<float> > > & FMSingleObject, string fileName) {
+
+	ofstream myfile;
+	string filepath = fileName;
+	const char * filepathC = filepath.c_str();
+	myfile.open (filepathC);
+
+	for (int i = 0; i < FMSingleObject.size(); i++) {
+
+		// for each object class category
+		for (int j = 0; j < FMSingleObject.at(i).size(); j++) {
+
+			// for each dimension of the features
+			for (int z = 0; z < FMSingleObject.at(i).at(j).size(); z++) {
+				myfile << FMSingleObject.at(i).at(j).at(z) << ", " ;
+			}
+			myfile << i ;
+			myfile << endl;
+		}
+	}
+	myfile.close();
+
+}
+
+
+
+void ArrangeFeatureTraining::printFeatureObjectPairToFile(vector<vector<vector<vector<float> > > > & FMPairObject, string fileName) {
+
+	ofstream myfile;
+	string filepath = fileName;
+	const char * filepathC = filepath.c_str();
+	myfile.open (filepathC);
+
+	for (int i = 0; i < FMPairObject.size(); i++) {
+
+		for (int i2 = 0; i2 < FMPairObject.at(i).size(); i2++) {
+
+			//cout << "Object categories: " << i << "   and " << i2 << endl;
+			for (int j = 0; j < FMPairObject.at(i).at(i2).size(); j++) {
+
+				for (int z = 0; z < FMPairObject.at(i).at(i2).at(j).size(); z++) {
+
+					myfile << FMPairObject.at(i).at(i2).at(j).at(z) << ", " ;
+				}
+				myfile << i << ", " << i2 ;
+				myfile << endl;
+			}
+		}
+	}
+
+	myfile.close();
+}
 
